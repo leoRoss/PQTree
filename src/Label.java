@@ -1,5 +1,3 @@
-package leo.ContiguityTree;
-
 //Labels are used to track Nodes
 public class Label {
 	int id;

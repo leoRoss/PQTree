@@ -1,5 +1,3 @@
-package leo.ContiguityTree;
-
 import java.util.Collection;
 import java.util.HashSet;
 

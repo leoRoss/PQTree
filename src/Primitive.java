@@ -1,5 +1,3 @@
-package leo.ContiguityTree;
-
 import java.util.List;
 
 public class Primitive extends Task {

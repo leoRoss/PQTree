@@ -1,5 +1,3 @@
-package leo.ContiguityTree;
-
 //SubLabels are used to track pieces of split nodes
 public class SubLabel extends Label {
 

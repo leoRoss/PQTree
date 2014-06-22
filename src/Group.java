@@ -1,6 +1,4 @@
-package leo.ContiguityTree;
-
-import java.util.Collection
+import java.util.Collection;
 import java.util.List;
 
 //Ordered groups are sequential, and can sometimes be executed in the reverse order
