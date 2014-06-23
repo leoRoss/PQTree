@@ -1,9 +1,9 @@
 package contiguityTree;
 
 //SubLabels are used to track pieces of split nodes
-public class SubLabel extends Label {
+public class PieceLabel extends Label {
 
-	SubLabel (int i) {
+	PieceLabel (int i) {
 		super(i);
 	}
 	

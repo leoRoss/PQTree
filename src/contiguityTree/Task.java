@@ -7,7 +7,6 @@ import java.util.List;
 public abstract class Task {
 	Label label;
 	Task parent;
-	Encorporator encorporator;
 	Collection <Label> preconditions;
 	
 	public Task (Label lab, Task par) {

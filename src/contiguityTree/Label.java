@@ -13,7 +13,7 @@ public class Label {
 		id=i;
 	}
 	
-	//return 1 if both are Label (not subLabel) with same id
+	//return 1 if both are Label (not peiceLabel) with same id
 	public int myEquals (Label l) {
 		if (l instanceof Label && l.id==id) return 1;
 		return -1;

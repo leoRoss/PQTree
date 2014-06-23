@@ -9,17 +9,18 @@ import java.util.List;
 public abstract class Group extends Task {
 	Collection <Task> subTasks;
 	Boolean ordered, reversible;
-	String type;
 	
 	public Group (Label lab, Task par) {
 		super(lab,par);
 	}
 	
 	public List<Task> encorporate (List<Task> demo) {
+		//Let my subTasks try to encorporate themselves in the demo
 		for (Task subTask : subTasks) {
 			demo = subTask.encorporate(demo);
 		}
-		//TODO encorporate my knowledge now that all primitives and subTasks are properly encorporated/labeled
+		//At this point, each of my subTasks is either in the demo or all of its pieces are in the demo
+		demo = Encorporator.encorporate(demo, this);
 		return demo;
 	}
 	
