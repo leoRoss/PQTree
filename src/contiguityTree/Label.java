@@ -1,13 +1,16 @@
+package contiguityTree;
+
 //Labels are used to track Nodes
 public class Label {
+	private static int next_available_id = 0;
 	int id;
+	
+	Label () {
+		id = next_available_id++;
+	}
 	
 	Label (int i) {
 		id=i;
-	}
-	
-	Label (Label l){
-		id=l.getId();
 	}
 	
 	//return 1 if both are Label (not subLabel) with same id
@@ -20,7 +23,8 @@ public class Label {
 	public int getId () {return id;}
 	public void setId (int id) {this.id = id;}
 	
-	public void print () {
-		System.out.print(id);
+	public String toString () {
+		return ""+id;
 	}
+
 }

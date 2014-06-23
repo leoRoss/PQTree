@@ -1,9 +1,12 @@
+package contiguityTree;
+
 import java.util.List;
 
 public class Primitive extends Task {
 	Object object;
 
-	public Primitive (Object obj) {
+	public Primitive (Label label, Task parent, Object obj) {
+		super(label, parent);
 		object = obj;
 	}
 	
@@ -21,7 +24,7 @@ public class Primitive extends Task {
 	
 	public void printMe(int depth) {
 		printSpace(depth);
-		System.out.print(object);
+		System.out.print(object + ": " + label);
 		printPreconditions();
 		System.out.println();
 	}

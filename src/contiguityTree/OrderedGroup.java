@@ -1,3 +1,5 @@
+package contiguityTree;
+
 import java.util.ArrayList;
 import java.util.Collection;
 
@@ -6,14 +8,15 @@ import java.util.Collection;
 public class OrderedGroup extends Group {
 	
 	//Various Constructors
-	OrderedGroup (boolean rev) {
+	public OrderedGroup (Label label, Task parent, boolean rev) {
+		super(label, parent);
 		subTasks = new ArrayList<Task>();
 		ordered = true;
 		reversible = rev;
 	}
 	
-	OrderedGroup (Collection <Task> col, boolean rev) {
-		this(rev);
+	public OrderedGroup (Label label, Task parent, boolean rev,  Collection <Task> col) {
+		this(label, parent, rev);
 		copyCollection(col);
 	}
 	

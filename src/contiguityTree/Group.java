@@ -1,3 +1,5 @@
+package contiguityTree;
+
 import java.util.Collection;
 import java.util.List;
 
@@ -9,6 +11,10 @@ public abstract class Group extends Task {
 	Boolean ordered, reversible;
 	String type;
 	
+	public Group (Label lab, Task par) {
+		super(lab,par);
+	}
+	
 	public List<Task> encorporate (List<Task> demo) {
 		for (Task subTask : subTasks) {
 			demo = subTask.encorporate(demo);
@@ -17,10 +23,11 @@ public abstract class Group extends Task {
 		return demo;
 	}
 	
-	//simply copy over children from another collection
+	//copy over subTasks from a collection into my subTasks
+	//assign myself as each subTask's parent
 	protected void copyCollection (Collection <Task> col){
 		for (Task temp : col){
-			subTasks.clear();
+			temp.setParent((Task)this);
 			subTasks.add(temp);
 		}
 	}
