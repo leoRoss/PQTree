@@ -6,16 +6,19 @@ public class Primitive extends Task {
 	Object object;
 
 	public Primitive (Label label, Task parent, Object obj) {
-		super(label, parent);
+		super(label, parent, 1);
 		object = obj;
 	}
 	
+	public Primitive (Object obj) {
+		this(new Label(), null, obj);
+	}
+	
 	//All we have to do is correctly label versions of ourselves in the demo
-	public List<Task> encorporate(List<Task> demo) {
+	public void encorporate(List<Task> demo) {
 		for (Task subTask : demo) {
 			if (this.equals(subTask)) subTask.setLabel(label);
 		}
-		return demo;
 	}
 	
 	public boolean equals (Object obj) {
@@ -27,6 +30,11 @@ public class Primitive extends Task {
 		System.out.print(object + ": " + label);
 		printPreconditions();
 		System.out.println();
+	}
+	
+	//remove afer testing
+	public Object getObject() {
+		return object;
 	}
 	
 }

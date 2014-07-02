@@ -14,12 +14,12 @@ public class ContiguityTree {
 	//Take in a list of unlabeled primitive actions
 	public void encorporate (List<Task> demo){
 		if (head==null) {
-			head = new OrderedGroup(new Label(), null, false, demo); //null parent, false because sequence is not reversible
+			head = new OrderedGroup(new Label(), null, demo, false); //null parent, false because sequence is not reversible
 		}
 		else {
-			List <Task> newTree = head.encorporate(demo);
-			if (newTree.size()!=1) throw new Error ("Tree did not reduce the list to a single Group");
-			head = newTree.get(0);
+			head.encorporate(demo);
+			if (demo.size()!=1) throw new Error ("Tree did not reduce the list to a single Group");
+			head = demo.get(0);
 		}
 	}
 	

@@ -1,40 +1,49 @@
 package contiguityTree;
 
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 //Ordered groups are sequential, and can sometimes be executed in the reverse order
 //Unordered groups can be scrambled
 
 public abstract class Group extends Task {
-	Collection <Task> subTasks;
-	Boolean ordered, reversible;
+	protected Set <Task> subTasks;
 	
-	public Group (Label lab, Task par) {
-		super(lab,par);
+	public Group (Label lab, Task par, int numSubTasks) {
+		super(lab,par, numSubTasks);
+		subTasks = new HashSet<Task>((int) Math.ceil(numSubTasks / 0.75)); //initialize so will not need be resized
 	}
 	
-	public List<Task> encorporate (List<Task> demo) {
+	public void encorporate (List<Task> demo) {
 		//Let my subTasks try to encorporate themselves in the demo
-		for (Task subTask : subTasks) {
-			demo = subTask.encorporate(demo);
-		}
+		encorporateChildren(demo);
 		//At this point, each of my subTasks is either in the demo or all of its pieces are in the demo
-		demo = Encorporator.encorporate(demo, this);
-		return demo;
+		Encorporator.encorporate(demo, this);
 	}
+	
+	public abstract void encorporateChildren (List<Task> demo);
+	
 	
 	//copy over subTasks from a collection into my subTasks
 	//assign myself as each subTask's parent
 	protected void copyCollection (Collection <Task> col){
-		for (Task temp : col){
-			temp.setParent((Task)this);
-			subTasks.add(temp);
+		for (Task task : col){
+			task.setParent((Task)this);
+			addTask(task);
 		}
 	}
 	
+	protected abstract void addTask (Task task);
+	
+	
+	public boolean contains (Task task) {
+		return subTasks.contains(task);
+	}
+	
 	//PRINTING
-	public void printMe(int depth) {
+	public void printMe (int depth) {
 	    printSpace(depth);
 	    System.out.print(name() + ": " + label + " {");
 	    printPreconditions();
@@ -46,9 +55,5 @@ public abstract class Group extends Task {
 	    System.out.println(")");
 	}
 	
-	private String name () {
-		if (!ordered) return "Unordered";
-		if (reversible) return "Reversible";
-		return "Sequential";
-	}
+	protected abstract String name ();
 }
