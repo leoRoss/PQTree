@@ -4,7 +4,7 @@ import java.util.Collection;
 import java.util.List;
 
 //Group of items that always appear contiguously, with no hard ordering
-public class UnOrderedGroup <T> extends Group {
+public class UnOrderedGroup extends Group {
 	
 	public UnOrderedGroup (Label label, Task parent, int size) {
 		super(label, parent, size);	
@@ -25,7 +25,11 @@ public class UnOrderedGroup <T> extends Group {
 		}
 	}
 	
+	protected boolean sameType (Task task) {
+		return task instanceof UnOrderedGroup;
+	}
+	
 	protected String name () {
-		return "Impossible Group";
+		return "Unordered Group";
 	}	
 }

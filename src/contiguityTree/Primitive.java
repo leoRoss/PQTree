@@ -21,6 +21,10 @@ public class Primitive extends Task {
 		}
 	}
 	
+	public int absoluteSize(){
+		return 1;
+	}
+	
 	public boolean equals (Object obj) {
 		return obj instanceof Primitive && ((Primitive)obj).object.equals(object);
 	}

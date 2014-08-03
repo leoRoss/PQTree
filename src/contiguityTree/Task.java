@@ -17,8 +17,10 @@ public abstract class Task {
 		size = s;
 	}
 	//Transfer my knowledge to a new demo
-	public abstract void encorporate(List<Task> demo);
+	public abstract void encorporate (List<Task> demo);
 	
+	//Number of leaf nodes below me	
+	public abstract int absoluteSize ();
 	//GETTERS AND SETTERS
 	public Label getLabel () {return label;}
 	public void setLabel (Label l) {label = l;}
@@ -27,7 +29,6 @@ public abstract class Task {
 	public int getSize () {return size;}
 	
 	//TOHASH OVERRIDE - both toString and Hash must match in Java :P
-	
 	public int hashCode () {
 		return label.getId();
 	}

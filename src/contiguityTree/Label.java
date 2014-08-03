@@ -5,7 +5,7 @@ public class Label {
 	private static int next_available_id = 0;
 	int id;
 	
-	Label () {
+	public Label () {
 		id = next_available_id++;
 	}
 	

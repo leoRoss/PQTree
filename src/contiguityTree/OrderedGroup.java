@@ -8,7 +8,7 @@ import java.util.List;
 //Group of items that always appear contiguously, always in the same order (or in the exact opposite order)
 public class OrderedGroup extends Group {
 	private ArrayList<Task> orderedSubTasks;
-	protected Boolean reversible;
+	protected boolean reversible;
 	
 	//Various Constructors
 	public OrderedGroup (Label label, Task parent, int size, boolean rev) {
@@ -37,11 +37,22 @@ public class OrderedGroup extends Group {
 		}
 	}
 	
+	protected boolean sameType (Task task) {
+		if (task instanceof OrderedGroup){
+			if ( ((OrderedGroup)task).isReversible() == reversible ) return true;
+		}
+		return false;
+	}
+	
 	protected String name () {
 		if (reversible) return "Reversible";
 		return "Sequential";
 	}
 	
 	public boolean isReversible () {return reversible;}
+	
+	protected Collection<Task> getSubTasks (){
+		return orderedSubTasks;
+	}
 	
 }
