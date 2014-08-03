@@ -32,12 +32,12 @@ public class ContiguityTreeBuilder {
 		* list1 = A,B,C,D,E,F
 		* list2 = E,F,A,C,D,B 
 		* 																
-		* max[0] = [4, 5, 0, 2, 3, 1]	min[0] = [4, 5, 0, 2, 3, 1]					[E, F, A, C, D, B]
-		* max[1] = [5, 5, 2, 3, 3]		min[1] = [4, 0, 0, 2, 1]		max-min-i = [0, 4, 1, 0, 1]	    // the two 0 signify that groups EF and CD are both contiguous in the two lists
-		* max[2] = [5, 5, 3, 3]			min[2] = [0, 0, 0, 1]			max-min-i = [3, 3, 1, 0]     	// 0 signifies that CDB are contiguous in the two lists
-		* max[3] = [5, 5, 3]			min[3] = [0, 0, 0]				max-min-i = [2, 2, 0]        	// 0 signifies that ACDB are contiguous in the two lists
-		* max[4] = [5, 5]				min[4] = [0, 0]				    max-min-i = [1, 1]				// neither EFACD or FACDB are contiguous in the two lists
-		* max[5] = [5]					min[5] = [0]					max-min-i = [0]					// of course, EFACDB is a contiguous group in the two lists
+		* max[0] = [4, 5, 0, 2, 3, 1]  min[0] = [4, 5, 0, 2, 3, 1]             [E, F, A, C, D, B]
+		* max[1] = [5, 5, 2, 3, 3]     min[1] = [4, 0, 0, 2, 1]    max-min-i = [0, 4, 1, 0, 1]    // the two 0 signify that groups EF and CD are both contiguous in the two lists
+		* max[2] = [5, 5, 3, 3]        min[2] = [0, 0, 0, 1]       max-min-i = [3, 3, 1, 0]       // 0 signifies that CDB are contiguous in the two lists
+		* max[3] = [5, 5, 3]           min[3] = [0, 0, 0]          max-min-i = [2, 2, 0]          // 0 signifies that ACDB are contiguous in the two lists
+		* max[4] = [5, 5]              min[4] = [0, 0]             max-min-i = [1, 1]             // neither EFACD or FACDB are contiguous in the two lists
+		* max[5] = [5]                 min[5] = [0]                max-min-i = [0]                // of course, EFACDB is a contiguous group in the two lists
 		*
 		* Why? This makes sense because we want the range of a group to be equal to its size. 
 		* A group 7, 9, 6, 8 has a range of 4 and a size of 4. However, 7, 10, 6, 8 has a range of 5 and a size of 4.
