@@ -15,9 +15,7 @@ public class UnOrderedGroup extends Group {
 		copyCollection(col);
 	}
 	
-	protected void addTask (Task task) {
-		subTasks.add(task);
-	}
+	protected void addTask (Task task) {subTasks.add(task);}
 	
 	public void encorporateChildren (List<Task>demo){
 		for (Task subTask : subTasks) {
@@ -25,11 +23,8 @@ public class UnOrderedGroup extends Group {
 		}
 	}
 	
-	protected boolean sameType (Task task) {
-		return task instanceof UnOrderedGroup;
-	}
-	
-	protected String name () {
-		return "Unordered Group";
-	}	
+	protected boolean sameType (Task task) {return task instanceof UnOrderedGroup;}
+	protected String name () {return "Unordered Group";}
+	public boolean isOrdered () {return false;}
+	public boolean isReversible () {return false;}
 }

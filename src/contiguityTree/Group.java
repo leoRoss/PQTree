@@ -78,6 +78,8 @@ public abstract class Group extends Task {
 	}
 	
 	protected abstract String name ();
+	public abstract boolean isOrdered ();
+	public abstract boolean isReversible ();
 	
 	
 	//GETTERS

@@ -49,10 +49,10 @@ public class OrderedGroup extends Group {
 		return "Sequential";
 	}
 	
+	public boolean isOrdered () {return true;}
 	public boolean isReversible () {return reversible;}
 	
-	protected Collection<Task> getSubTasks (){
-		return orderedSubTasks;
-	}
+	protected Collection<Task> getSubTasks (){return orderedSubTasks;}
+
 	
 }

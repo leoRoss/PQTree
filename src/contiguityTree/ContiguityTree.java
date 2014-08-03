@@ -18,7 +18,7 @@ public class ContiguityTree {
 		}
 		else {
 			head.encorporate(demo);
-			if (demo.size()!=1) throw new Error ("Tree did not reduce the list to a single Group");
+			if (demo.size()!=1) throw new Error ("The tree did not reduce the list to a single task");
 			head = demo.get(0);
 		}
 	}
