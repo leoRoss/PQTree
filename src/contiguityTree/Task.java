@@ -21,6 +21,12 @@ public abstract class Task {
 	
 	//Number of leaf nodes below me	
 	public abstract int absoluteSize ();
+	
+	//Am I a peice of an unresolved task?
+	public boolean isPiece () {
+		return label.isPiece();
+	}
+	
 	//GETTERS AND SETTERS
 	public Label getLabel () {return label;}
 	public void setLabel (Label l) {label = l;}
@@ -28,9 +34,17 @@ public abstract class Task {
 	public void setParent (Task par) {parent = par;}
 	public int getSize () {return size;}
 	
-	//TOHASH OVERRIDE - both toString and Hash must match in Java :P
+	
 	public int hashCode () {
-		return label.getId();
+		return label.hashCode();
+	}
+	
+	//Two Tasks are equal if their labels are exactly the same
+	public boolean lenientEquals (Object obj) {
+		if (obj instanceof Task) {
+			if (label.lenientEquals( ((Task)obj).getLabel() )) return true;
+		}
+		return false;
 	}
 	
 	//PRINTING
@@ -47,5 +61,9 @@ public abstract class Task {
 	
 	public void printSpace (int depth) {
 		for (int x=0; x<depth; x++) System.out.print("    "); 
+	}
+	
+	public int getNumberOfBrothers() {
+		return label.getNumberOfBrothers();
 	}
 }
