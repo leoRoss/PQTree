@@ -1,10 +1,7 @@
 package contiguityTree;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 import java.util.HashSet;
 
 /*
@@ -44,12 +41,12 @@ import java.util.HashSet;
 
 
 public class OrderedIncorporator extends Incorporator{
-	
     ContiguousGroupFinder finder;
     Validator validator;
     GroupBuilder builder;
     
-    public OrderedIncorporator (OrderedGroup orderedGroup, List<Task> demo) {
+    public OrderedIncorporator (OrderedGroup orderedGroup, List<Task> partiallyIncorporatedDemo) {
+        demo = partiallyIncorporatedDemo;
         int demoSize = demo.size();
         if (demoSize<orderedGroup.getSize()) throw new Error("The demo can not have less tasks than the group does");
         
@@ -70,6 +67,14 @@ public class OrderedIncorporator extends Incorporator{
                 validator.update(contiguousCandidate[0], contiguousCandidate[1], task);
             }
         }
+        updateDemo();
+    }
+    
+    //The demo must be updated so as to have:
+    // 1. the new resolved tasks
+    // 2. any unresolved pieces that were in the oGroup must be relabeled
+    private void updateDemo() {
+        throw new Error ("TO IMPLEMENT!");
     }
 	
 
@@ -99,7 +104,7 @@ public class OrderedIncorporator extends Incorporator{
 	        books = new PieceIndexTracker [demoSize][demoSize];
 	        int index=0;
             for (Task demoTask : demo){
-                books[0][index] = new PieceIndexTracker(orderedGroupSubTasks, demoTask);
+                books[0][index++] = new PieceIndexTracker(orderedGroupSubTasks, demoTask);
             }
 	    }
 	    
@@ -139,20 +144,26 @@ public class OrderedIncorporator extends Incorporator{
     	//We define exists to include tasks in the demo which are Pieces of a Task in oGroup.
     	//The pieces Map is used to keep track of these Pieces. We can only form a new Group if we have all the Pieces of a Task.
     	private class PieceIndexTracker {
-    		protected int minIndex, maxIndex;
-    		protected HashSet<Task> tasksOfMyPieces;
-    		protected HashSet<Task> myPieces;
+    		int minIndex, maxIndex;
+    		HashSet<Task> tasksOfMyPieces;
+    		HashSet<Task> myPieces;
     		//When merging two PieceIndexTrackers, I just need to add the highest index task of one to the pieces of the other
-    		protected Task taskOfMyHighestIndexOriginalTask; 
-    		protected Task highestIndexOriginalTask;
-    		protected int desiredNumberOfPieces;
-    		protected int numberOfDemoTasksTracked; //my height in books[][]
+    		Task taskOfMyHighestIndexOriginalTask; 
+    		Task highestIndexOriginalTask;
+    		int desiredNumberOfPieces;
+    		int numberOfDemoTasksTracked; //my height in books[][]
     		
     		public PieceIndexTracker (List<Task> subTasks, Task task) {
     			int indexInGroup = lenientIndexOfSubTask(subTasks, task);
-    			if (indexInGroup==-1) throw new Error ("Lists must contain the same set of unique elements when building a Contiguity Tree");
-    			minIndex = indexInGroup;
-    			maxIndex = indexInGroup;
+    			
+    			if (indexInGroup==-1) { //the task does not exist in this group
+    			    minIndex = -1;
+    			    maxIndex = subTasks.size()*2; //this way they will never be resolved
+    			}
+    			else {
+        			minIndex = indexInGroup;
+        			maxIndex = indexInGroup;
+    			}
     			
     			//A vague copy create a task with an equivalent label
     			//Why? b/c this task may become relabeled when it becomes part of a group (the new Contiguity Tree should not contain any Tasks with PieceLabels)
@@ -254,16 +265,19 @@ public class OrderedIncorporator extends Incorporator{
 	    private int [] demoIndexedInGroup;
 	    
 	    public Validator (List<Task> demo, int [] indexedInGroup) {
-	        upToDateDemoTasks = new Task[demo.size()];
+	        int demoSize = demo.size();
+	        upToDateDemoTasks = new Task[demoSize];
+	        demoIndexedInGroup = new int [demoSize];
 	        int index=0;
             for (Task demoTask : demo){
+                upToDateDemoTasks[index] = demoTask;
                 demoIndexedInGroup[index] = indexedInGroup[index];
-                upToDateDemoTasks[index++] = demoTask;
+                index++;
             }
 	    }
-	    
-	    
-	    /*
+
+
+        /*
 	     * Not all contiguous groups merit to become a Task in the final Contiguity Tree
          * For example, assume list1 = ABCD && list2 = ABCD
          * Initially, list2tasks = 0 1 2 3.
@@ -338,6 +352,7 @@ public class OrderedIncorporator extends Incorporator{
                 upToDateDemoTasks[i] = task;
             }
 	    }
+	    
 	}
 	
 	
