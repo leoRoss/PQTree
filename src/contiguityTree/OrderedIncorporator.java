@@ -105,7 +105,7 @@ public class OrderedIncorporator extends Incorporator{
 	    
 	    public ContiguousGroupFinder (List<Task> orderedGroupSubTasks, List<Task> demo) {
 	        int demoSize = demo.size();
-	        i=0; j=-1;
+	        i=1; j=-1;
 	        books = new PieceIndexTracker [demoSize][demoSize];
 	        int index=0;
             for (Task demoTask : demo){
@@ -121,10 +121,10 @@ public class OrderedIncorporator extends Incorporator{
 	        //I must apologize for the ugly nested looping. Returning inside the nested loop must not affect the incrementing of i and j
 	        //This allows us to return to where we left of :)
 	        while (i<=size){
-	            i++;
-	            if (j==size-i) j=-1; System.out.println();
+	            if (j+i==size-1) {i++; j=-1;}
 	            while (j<size-i-1){
 	                j++;
+	                System.out.println("Making books for["+i+"]["+j+"]");
 	                books[i][j]=new PieceIndexTracker(books[i-1][j],books[i-1][j+1]);
 	                System.out.print("| " + books[i][j].minIndex + "," + books[i][j].maxIndex);
 	                if (books[i][j].candidateForGrouping()) return new int[]{j,j+i, books[i][j].numberOfPeices()};
