@@ -9,7 +9,7 @@ public class PlaceHolderTask extends Task {
 		super(copiedLabel, null, -1);
 	}
 
-	public void encorporate(List<Task> demo) {
+	public void incorporate(List<Task> demo) {
 		throw new Error ("PlaceHolderTasks should never be called!");
 	}
 	

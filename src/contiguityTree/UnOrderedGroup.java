@@ -19,9 +19,13 @@ public class UnOrderedGroup extends Group {
 	
 	public void encorporateChildren (List<Task>demo){
 		for (Task subTask : subTasks) {
-			subTask.encorporate(demo);
+			subTask.incorporate(demo);
 		}
 	}
+	
+	public void createNewIncorporator(List<Task> demo) {
+        incorporator = new UnOrderedIncorporator(this, demo);
+    }
 	
 	protected boolean sameType (Task task) {return task instanceof UnOrderedGroup;}
 	protected String name () {return "Unordered Group";}

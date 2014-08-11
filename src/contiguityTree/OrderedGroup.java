@@ -21,6 +21,26 @@ public class OrderedGroup extends Group {
 		copyCollection(col);
 	}
 	
+	//This constructor will absorb any subTasks which share my direction
+	public OrderedGroup (Label label, Task parent,  Collection <Task> col, boolean rev, int [] subTaskDirections, int startIndex, int endIndex, int myDirection) {
+        this(label, parent, col.size(), rev);
+        copyCollection(col, subTaskDirections, startIndex, endIndex, myDirection);
+    }
+	
+	private void copyCollection(Collection <Task> col, int [] subTaskDirections, int startIndex, int endIndex, int myDirection) {
+	    int index = 0;
+        for (Task task : col){
+            if (subTaskDirections[startIndex+index]==myDirection) { //time to absorb, that means delete the subtask and steal his kids :)
+                copyCollection( ((Group)task).getSubTasks() );
+            }
+            else {
+                task.setParent((Task)this);
+                addTask(task);
+            }
+            index++;
+        }
+	}
+	
 	public void setUp (boolean rev, int size){
 		orderedSubTasks = new ArrayList<Task>(size);
 		reversible = rev;
@@ -33,9 +53,13 @@ public class OrderedGroup extends Group {
 	
 	public void encorporateChildren (List<Task>demo){
 		for (Task subTask : orderedSubTasks) {
-			subTask.encorporate(demo);
+			subTask.incorporate(demo);
 		}
 	}
+	
+	public void createNewIncorporator(List<Task> demo) {
+        incorporator = new OrderedIncorporator(this, demo);
+    }
 	
 	protected boolean sameType (Task task) {
 		if (task instanceof OrderedGroup){
@@ -57,6 +81,5 @@ public class OrderedGroup extends Group {
 	public Task getSubTask (int index) {
 		return orderedSubTasks.get(index); 
 	}
-
 	
 }

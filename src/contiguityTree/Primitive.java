@@ -15,7 +15,7 @@ public class Primitive extends Task {
 	}
 	
 	//All we have to do is correctly label versions of ourselves in the demo
-	public void encorporate(List<Task> demo) {
+	public void incorporate(List<Task> demo) {
 		for (Task subTask : demo) {
 			if (this.contentEquals(subTask)) subTask.setLabel(label);
 		}

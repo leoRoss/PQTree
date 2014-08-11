@@ -17,7 +17,7 @@ public abstract class Task {
 		size = s;
 	}
 	//Transfer my knowledge to a new demo
-	public abstract void encorporate (List<Task> demo);
+	public abstract void incorporate (List<Task> demo);
 	
 	//Number of leaf nodes below me	
 	public abstract int absoluteSize ();
