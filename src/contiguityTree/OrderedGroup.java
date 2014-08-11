@@ -57,16 +57,6 @@ public class OrderedGroup extends Group {
 	public Task getSubTask (int index) {
 		return orderedSubTasks.get(index); 
 	}
-	
-	//if task is a Piece Label, return when we find any task with the same id
-	public int lenientIndexOfSubTask (Task task) {
-		int index=0;
-		for (Task subTask : orderedSubTasks) {
-			if (subTask.lenientEquals(task)) return index;
-			index++;
-		}
-		return -1;
-	}
 
 	
 }

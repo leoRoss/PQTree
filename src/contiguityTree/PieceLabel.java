@@ -36,4 +36,9 @@ public class PieceLabel extends Label {
         PieceLabel pieceLabel = (PieceLabel) obj;
 		return id == pieceLabel.id && brotherUUID == pieceLabel.brotherUUID;
 	}
+	
+	public Label copyLabel() {
+        PieceLabel copy = new PieceLabel(id, brotherUUID, brothers);
+        return copy;
+    }
 }

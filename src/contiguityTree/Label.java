@@ -50,4 +50,9 @@ public class Label {
         Label label = (Label) obj;
 		return id == label.id;
 	}
+	
+	public Label copyLabel() {
+	    Label copy = new Label(id);
+	    return copy;
+	}
 }

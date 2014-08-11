@@ -5,10 +5,10 @@ import java.util.Collection;
 import java.util.List;
 
 public abstract class Task {
-	Label label;
-	Task parent;
-	Collection <Label> preconditions;
-	int size;
+	protected Label label;
+	protected Task parent;
+	protected Collection <Label> preconditions;
+	protected int size;
 	
 	public Task (Label lab, Task par, int s) {
 		label = lab;
@@ -39,12 +39,22 @@ public abstract class Task {
 		return label.hashCode();
 	}
 	
-	//Two Tasks are equal if their labels are exactly the same
+	//two Tasks are equal as long as they have equivalent labels
+	public boolean equals (Object obj) {
+	    if (obj == null) return false;
+	    return obj instanceof Task && ((Task)obj).getLabel().equals(label);
+	}
+	
+	//Two Tasks are lenientEqual if their labels are exactly the same
 	public boolean lenientEquals (Object obj) {
 		if (obj instanceof Task) {
 			if (label.lenientEquals( ((Task)obj).getLabel() )) return true;
 		}
 		return false;
+	}
+	
+	public Task vagueCopy () {
+	    return new PlaceHolderTask(label.copyLabel());
 	}
 	
 	//PRINTING

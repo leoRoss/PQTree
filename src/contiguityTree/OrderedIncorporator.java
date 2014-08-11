@@ -20,8 +20,8 @@ import java.util.HashSet;
 
 public class OrderedIncorporator {
 	
-    ContiguousGroupFinder finder = new ContiguousGroupFinder();
-    Validator validator = new Validator();
+    ContiguousGroupFinder finder;
+    Validator validator;
     GroupBuilder builder;
     OrderedGroup orderedGroup;
     List<Task> demo;
@@ -29,9 +29,12 @@ public class OrderedIncorporator {
     public OrderedIncorporator (OrderedGroup orderedGroupForEncorporation, List<Task> partiallyEncorporatedDemonstration) {
         orderedGroup = orderedGroupForEncorporation;
         demo = partiallyEncorporatedDemonstration;
-        if (orderedGroup.isReversible()) { builder = new GroupBuilderFromReversible (); }
-        else { builder = new GroupBuilderFromNonReversible (); }
+        finder = new ContiguousGroupFinder( (List<Task>)orderedGroup.getSubTasks(), demo);
+        validator = new Validator(demo);
+        if (orderedGroup.isReversible()) { builder = new GroupBuilderFromReversible(demo.size()); }
+        else { builder = new GroupBuilderFromNonReversible(demo.size()); }
     }
+    
     
 	
 
@@ -48,104 +51,121 @@ public class OrderedIncorporator {
 	
 	/*
      * These classes are used to dynamically find all the groups of tasks which are contiguous
-     * in both the Group being incorporated and in the demo
+     * in both the OrderedGroup's subTasks and in the demo
      */
 	
 	private class ContiguousGroupFinder {
 	    private PieceIndexTracker[][] books;
-	}
+	    List<Task> subTasks, demo;
+	    
+	    public ContiguousGroupFinder (List<Task> orderedGroupSubTasks, List<Task> partiallyEncorporatedDemonstration) {
+	        int index=0;
+            for (Task demoTask : demo){
+                books[0][index] = new PieceIndexTracker(orderedGroupSubTasks, demoTask);
+            }
+	    }
 	
-	//Imagine we are incorporating OrderedGroup oGroup into the List<Task> demo.
-	//oGroup also contains a List<Task>.
-	//Let PieceIndexTracker tracker be used to track the Tasks in the demo from index 4 to 7.
-	//minIndex is the smallest index of a Task in oGroup which also exists in demo[4,7].
-	//maxIndex is the largest index of a Task in oGroup which also exists in demo[4,7].
-	//We define exists to include tasks in the demo which are Pieces of a Task in oGroup.
-	//The pieces Map is used to keep track of these Pieces. We can only form a new Group if we have all the Pieces of a Task.
-	private class PieceIndexTracker {
-		protected int minIndex, maxIndex;
-		protected HashSet<Task> tasksOfMyPieces;
-		protected HashSet<Task> myPieces;
-		//When merging two PieceIndexTrackers, I just need to add the highest index task of one to the pieces of the other
-		protected Task taskOfMyHighestIndexOriginalTask; 
-		protected Task highestIndexOriginalTask;
-		protected int desiredNumberOfPieces;
-		protected int numberOfDemoTasksTracked; //my height in books[][]
-		
-		public PieceIndexTracker (Task task, OrderedGroup oGroup) {
-			int indexInGroup = oGroup.lenientIndexOfSubTask(task);
-			if (indexInGroup==-1) throw new Error ("Lists must contain the same set of unique elements when building a Contiguity Tree");
-			minIndex = indexInGroup;
-			maxIndex = indexInGroup;
-			
-			//A vague copy create a task with an equivalent label
-			//Why? b/c this task may become relabeled when it becomes part of a group (the new Contiguity Tree should not contain any Tasks with PieceLabels)
-			//Since we are tracking pieces using a label-based hash, we need persistent labels
-			highestIndexOriginalTask = task.vagueCopy(); 
-			taskOfMyHighestIndexOriginalTask = oGroup.getSubTask(indexInGroup); 
-			
-			myPieces = new HashSet<Task> ();
-			tasksOfMyPieces = new HashSet<Task> ();
-			
-			if (highestIndexOriginalTask.isPiece()) {
-				myPieces.add(highestIndexOriginalTask);
-				tasksOfMyPieces.add(taskOfMyHighestIndexOriginalTask);	
-				desiredNumberOfPieces = highestIndexOriginalTask.getNumberOfBrothers();
-			}
-			else {
-				desiredNumberOfPieces=0;
-			}
-			
-			numberOfDemoTasksTracked = 1;
-		}
-		
-		public PieceIndexTracker (PieceIndexTracker tracker1, PieceIndexTracker tracker2) {
-			minIndex = Math.min(tracker1.minIndex, tracker2.minIndex);
-			maxIndex = Math.min(tracker1.maxIndex, tracker2.maxIndex);
-			numberOfDemoTasksTracked = tracker1.numberOfDemoTasksTracked+1;
-			copyPieceTrackingFrom(tracker1);
-			addHighestIndexTaskFrom(tracker2);
-		}
-		
-		//NOTE: We are making stealing and editing the Sets from the layer below us. This is OK as we no longer need them. 
-		//However, we must take note that tracker1 is no longer valid for dynamic computing
-		private void copyPieceTrackingFrom (PieceIndexTracker tracker1) {
-			myPieces = tracker1.myPieces;
-			tasksOfMyPieces = tracker1.tasksOfMyPieces;
-			desiredNumberOfPieces = tracker1.desiredNumberOfPieces;
-		}
-		
-		private void addHighestIndexTaskFrom (PieceIndexTracker tracker2) {
-			highestIndexOriginalTask = tracker2.highestIndexOriginalTask;
-			taskOfMyHighestIndexOriginalTask = tracker2.taskOfMyHighestIndexOriginalTask;
-			
-			if (highestIndexOriginalTask.isPiece()) {
-				myPieces.add(highestIndexOriginalTask);
-				
-				//If we are adding a new set of pieces to track, we must update our piece count
-				if (!tasksOfMyPieces.contains(taskOfMyHighestIndexOriginalTask)) {
-					tasksOfMyPieces.add(taskOfMyHighestIndexOriginalTask);
-					desiredNumberOfPieces += highestIndexOriginalTask.getNumberOfBrothers();
-				}
-			}
-		}
-		
-		public boolean candidateForGrouping () {
-			if (!allPiecesHaveAllTheirBrothers()) return false;
-			int rangeOfIndices = maxIndex - minIndex;
-			if (rangeOfIndices + desiredNumberOfPieces == numberOfDemoTasksTracked) return true;
-			return false;
-		}
-		
-		public boolean allPiecesHaveAllTheirBrothers () {
-			return desiredNumberOfPieces == myPieces.size();
-		}
-		
-		public boolean containsPeices () {
-			return desiredNumberOfPieces > 0;
-		}
-	}
+    	//Imagine we are incorporating OrderedGroup oGroup into the List<Task> demo.
+    	//oGroup also contains a List<Task>.
+    	//Let PieceIndexTracker tracker be used to track the Tasks in the demo from index 4 to 7.
+    	//minIndex is the smallest index of a Task in oGroup which also exists in demo[4,7].
+    	//maxIndex is the largest index of a Task in oGroup which also exists in demo[4,7].
+    	//We define exists to include tasks in the demo which are Pieces of a Task in oGroup.
+    	//The pieces Map is used to keep track of these Pieces. We can only form a new Group if we have all the Pieces of a Task.
+    	private class PieceIndexTracker {
+    		protected int minIndex, maxIndex;
+    		protected HashSet<Task> tasksOfMyPieces;
+    		protected HashSet<Task> myPieces;
+    		//When merging two PieceIndexTrackers, I just need to add the highest index task of one to the pieces of the other
+    		protected Task taskOfMyHighestIndexOriginalTask; 
+    		protected Task highestIndexOriginalTask;
+    		protected int desiredNumberOfPieces;
+    		protected int numberOfDemoTasksTracked; //my height in books[][]
+    		
+    		public PieceIndexTracker (List<Task> subTasks, Task task) {
+    			int indexInGroup = lenientIndexOfSubTask(subTasks, task);
+    			if (indexInGroup==-1) throw new Error ("Lists must contain the same set of unique elements when building a Contiguity Tree");
+    			minIndex = indexInGroup;
+    			maxIndex = indexInGroup;
+    			
+    			//A vague copy create a task with an equivalent label
+    			//Why? b/c this task may become relabeled when it becomes part of a group (the new Contiguity Tree should not contain any Tasks with PieceLabels)
+    			//Since we are tracking pieces using a label-based hash, we need persistent labels
+    			highestIndexOriginalTask = task.vagueCopy(); 
+    			taskOfMyHighestIndexOriginalTask = subTasks.get(indexInGroup); 
+    			
+    			myPieces = new HashSet<Task> ();
+    			tasksOfMyPieces = new HashSet<Task> ();
+    			
+    			if (highestIndexOriginalTask.isPiece()) {
+    				myPieces.add(highestIndexOriginalTask);
+    				tasksOfMyPieces.add(taskOfMyHighestIndexOriginalTask);	
+    				desiredNumberOfPieces = highestIndexOriginalTask.getNumberOfBrothers();
+    			}
+    			else {
+    				desiredNumberOfPieces=0;
+    			}
+    			
+    			numberOfDemoTasksTracked = 1;
+    		}
+    		
+    		public PieceIndexTracker (PieceIndexTracker tracker1, PieceIndexTracker tracker2) {
+    			minIndex = Math.min(tracker1.minIndex, tracker2.minIndex);
+    			maxIndex = Math.min(tracker1.maxIndex, tracker2.maxIndex);
+    			numberOfDemoTasksTracked = tracker1.numberOfDemoTasksTracked+1;
+    			copyPieceTrackingFrom(tracker1);
+    			addHighestIndexTaskFrom(tracker2);
+    		}
+    		
+    		//NOTE: We are making stealing and editing the Sets from the layer below us. This is OK as we no longer need them. 
+    		//However, we must take note that tracker1 is no longer valid for dynamic computing
+    		private void copyPieceTrackingFrom (PieceIndexTracker tracker1) {
+    			myPieces = tracker1.myPieces;
+    			tasksOfMyPieces = tracker1.tasksOfMyPieces;
+    			desiredNumberOfPieces = tracker1.desiredNumberOfPieces;
+    		}
+    		
+    		private void addHighestIndexTaskFrom (PieceIndexTracker tracker2) {
+    			highestIndexOriginalTask = tracker2.highestIndexOriginalTask;
+    			taskOfMyHighestIndexOriginalTask = tracker2.taskOfMyHighestIndexOriginalTask;
+    			
+    			if (highestIndexOriginalTask.isPiece()) {
+    				myPieces.add(highestIndexOriginalTask);
+    				
+    				//If we are adding a new set of pieces to track, we must update our piece count
+    				if (!tasksOfMyPieces.contains(taskOfMyHighestIndexOriginalTask)) {
+    					tasksOfMyPieces.add(taskOfMyHighestIndexOriginalTask);
+    					desiredNumberOfPieces += highestIndexOriginalTask.getNumberOfBrothers();
+    				}
+    			}
+    		}
+    		
+    		public boolean candidateForGrouping () {
+    			if (!allPiecesHaveAllTheirBrothers()) return false;
+    			int rangeOfIndices = maxIndex - minIndex;
+    			if (rangeOfIndices + desiredNumberOfPieces == numberOfDemoTasksTracked) return true;
+    			return false;
+    		}
+    		
+    		public boolean allPiecesHaveAllTheirBrothers () {
+    			return desiredNumberOfPieces == myPieces.size();
+    		}
+    		
+    		public boolean containsPeices () {
+    			return desiredNumberOfPieces > 0;
+    		}
+    		
+    		private int lenientIndexOfSubTask (List<Task> subTasks, Task task) {
+                int index=0;
+                for (Task subTask : subTasks) {
+                    if (subTask.lenientEquals(task)) return index;
+                    index++;
+                }
+                return -1;
+            }
+    	}
 	
+	}
 	
 	
 	
@@ -160,11 +180,19 @@ public class OrderedIncorporator {
     //******************************************************************//
 	
 	/*
-     * This classes are used to ensure that the contiguous groups merit to be built into the Contiguity Tree
+     * This class is used to ensure that the contiguous groups merit to be built into the Contiguity Tree
      */
 	
 	private class Validator {
 	    private Task[] upToDateDemoTasks;
+	    
+	    public Validator (List<Task> demo) {
+	        upToDateDemoTasks = new Task[demo.size()];
+	        int index=0;
+            for (Task demoTask : demo){
+                upToDateDemoTasks[index++] = demoTask;
+            }
+	    }
 	    
 	    //validate
 	    
@@ -217,14 +245,16 @@ public class OrderedIncorporator {
      *          
      *  
      * Implementation:
-     *   Since we only want to absorb "recently created OGs", we initialize the original Task direction to 0
+     *   Since we only want to absorb "recently created OGs", we initialize the original Task direction to 0 (default)
      *   Why? We do not want to accidentally absorb a pre-existing rOG into a new rOG.
      *   It is totally legitimate to have a reversible within a reversible
      */
 	
     private abstract class GroupBuilder {
         private int[] directionOfTasks;
-        
+        public GroupBuilder (int demoLength) {
+            directionOfTasks = new int[demoLength]; //default values of 0 so original Tasks will never be absorbed
+        }
     }
    
 	
@@ -243,7 +273,9 @@ public class OrderedIncorporator {
      * - Otherwise make an unordered group and note that the direction was scrambled (0)
      */
 	private class GroupBuilderFromNonReversible extends GroupBuilder {
-		
+		public GroupBuilderFromNonReversible (int demoLength){
+		    super(demoLength);
+		}
 	}
 	
 	/*
@@ -253,7 +285,9 @@ public class OrderedIncorporator {
      * Why? Obviously, if the sequence of Tasks already existed in a reversible, it must have previously been seen in both direction
      */
 	private class GroupBuilderFromReversible extends GroupBuilder {
-		
+	    public GroupBuilderFromReversible (int demoLength){
+            super(demoLength);
+        }
 	}
 }
 
@@ -341,13 +375,7 @@ public void buildContiguityTree(OrderedGroup group, List<Task> demo) {
 
 //Copy list2 into an list2tasks
 //Initialize min[0][..] and max[0][..]
-private void setUpBooks(OrderedGroup oGroup, List<Task> demo){
-   int index=0;
-   for (Task demoTask : demo){
-       books[0][index] = new PieceIndexTracker(demoTask, oGroup);
-       upToDateDemoTasks[index++] = demoTask;
-   }
-}
+
 
 //dynamically compute range
 //when range == i, we have found a contiguous group

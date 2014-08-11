@@ -35,14 +35,14 @@ public abstract class Group extends Task {
 	
 	//copy over subTasks from a collection into my subTasks
 	//assign myself as each subTask's parent
-	/*
 	protected void copyCollection (Collection <Task> col){
 		for (Task task : col){
 			task.setParent((Task)this);
 			addTask(task);
 		}
 	}
-	*/
+	
+	/*
 	//ASSUMPTION: Whenever I make a new group, if any subtask does not have a parent, they are a candidate for absorbtion (delete the node take its kids as my own)
 	protected void copyCollection (Collection <Task> col){
 		for (Task task : col){
@@ -55,6 +55,7 @@ public abstract class Group extends Task {
 			}
 		}
 	}
+	*/
 	
 	protected abstract void addTask (Task task);
 	
