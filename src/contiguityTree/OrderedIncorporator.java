@@ -64,8 +64,13 @@ public class OrderedIncorporator extends Incorporator{
             VerifiedGroupOfTasks verifiedGroup = validator.validate(contiguousCandidate[0], contiguousCandidate[1]);
             if (verifiedGroup != null) {
                 Task task = builder.buildTask(verifiedGroup, contiguousCandidate[2]);
+                System.out.println("Make Task:");
+                task.printMe(2);
+                System.out.println();
+                System.out.println();
                 validator.update(contiguousCandidate[0], contiguousCandidate[1], task);
             }
+            contiguousCandidate = finder.nextGroup(); 
         }
         updateDemo();
     }
@@ -105,6 +110,7 @@ public class OrderedIncorporator extends Incorporator{
 	        int index=0;
             for (Task demoTask : demo){
                 books[0][index++] = new PieceIndexTracker(orderedGroupSubTasks, demoTask);
+                System.out.print("| " + books[0][index-1].minIndex + "," + books[0][index-1].maxIndex);
             }
 	    }
 	    
@@ -116,10 +122,11 @@ public class OrderedIncorporator extends Incorporator{
 	        //This allows us to return to where we left of :)
 	        while (i<=size){
 	            i++;
-	            if (j==size-i) j=-1;
+	            if (j==size-i) j=-1; System.out.println();
 	            while (j<size-i-1){
 	                j++;
 	                books[i][j]=new PieceIndexTracker(books[i-1][j],books[i-1][j+1]);
+	                System.out.print("| " + books[i][j].minIndex + "," + books[i][j].maxIndex);
 	                if (books[i][j].candidateForGrouping()) return new int[]{j,j+i, books[i][j].numberOfPeices()};
 	            }
 	        }
@@ -158,7 +165,7 @@ public class OrderedIncorporator extends Incorporator{
     			
     			if (indexInGroup==-1) { //the task does not exist in this group
     			    minIndex = -1;
-    			    maxIndex = subTasks.size()*2; //this way they will never be resolved
+    			    maxIndex = subTasks.size()+1; //this way no group containing this task will ever be a candidate
     			}
     			else {
         			minIndex = indexInGroup;
@@ -187,8 +194,8 @@ public class OrderedIncorporator extends Incorporator{
     		}
 
             public PieceIndexTracker (PieceIndexTracker tracker1, PieceIndexTracker tracker2) {
-    			minIndex = Math.min(tracker1.minIndex, tracker2.minIndex);
-    			maxIndex = Math.min(tracker1.maxIndex, tracker2.maxIndex);
+                minIndex = Math.min(tracker1.minIndex, tracker2.minIndex);
+    			maxIndex = Math.max(tracker1.maxIndex, tracker2.maxIndex);
     			numberOfDemoTasksTracked = tracker1.numberOfDemoTasksTracked+1;
     			copyPieceTrackingFrom(tracker1);
     			addHighestIndexTaskFrom(tracker2);
@@ -220,7 +227,7 @@ public class OrderedIncorporator extends Incorporator{
     		public boolean candidateForGrouping () {
     			if (!allPiecesHaveAllTheirBrothers()) return false;
     			int rangeOfIndices = maxIndex - minIndex;
-    			if (rangeOfIndices + desiredNumberOfPieces == numberOfDemoTasksTracked) return true;
+    			if (rangeOfIndices + desiredNumberOfPieces + 1 == numberOfDemoTasksTracked) return true;
     			return false;
     		}
     		
@@ -303,6 +310,7 @@ public class OrderedIncorporator extends Incorporator{
          * The final Contiguity Tree is an Ordered Group <ABCD>.
          */
 	    public VerifiedGroupOfTasks validate (int start, int end) {
+	        System.out.println("Validating group from: "+ start + " to " + end);
 	        ArrayList<Task> tasksInL2Order = new ArrayList<Task>();
             ArrayList<Integer> L1IndexOfTasksInL2Order = new ArrayList<Integer>();
            

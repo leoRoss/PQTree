@@ -17,7 +17,7 @@ public class Primitive extends Task {
 	//All we have to do is correctly label versions of ourselves in the demo
 	public void incorporate(List<Task> demo) {
 		for (Task subTask : demo) {
-			if (this.contentEquals(subTask)) subTask.setLabel(label);
+			if (this.contentEquals(subTask)) { subTask.setLabel(label); System.out.println("Successfully found: " + object + " in demo"); }
 		}
 	}
 	
