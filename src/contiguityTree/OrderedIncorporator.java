@@ -61,10 +61,14 @@ public class OrderedIncorporator extends Incorporator{
     public void incorporate () {
         //contiguousCandidate = [startIndex, endIndex, # of pieces]
         int [] contiguousCandidate = finder.nextGroup(); 
+        int numberOfGroupsMade = 0;
+        int numberOfPrimitivesInGroupsMade = 0;
         while (contiguousCandidate!=null) {
             VerifiedGroupOfTasks verifiedGroup = validator.validate(contiguousCandidate[0], contiguousCandidate[1]);
             if (verifiedGroup != null) {
                 Task task = builder.buildTask(verifiedGroup, contiguousCandidate[2]);
+                numberOfGroupsMade++;
+                numberOfPrimitivesInGroupsMade+= task.absoluteSize();
                 //System.out.println("Make Task:");
                 //task.printMe(2);
                 //System.out.println();
@@ -73,7 +77,9 @@ public class OrderedIncorporator extends Incorporator{
             }
             contiguousCandidate = finder.nextGroup(); 
         }
+        System.out.println("Made " + numberOfGroupsMade + " new tasks during incorporation" + " for a total Primitive count of " + numberOfPrimitivesInGroupsMade);
         validator.updateDemo(demo, group.getLabel().getId() );
+        
     }
     
 	
