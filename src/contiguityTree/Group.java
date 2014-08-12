@@ -21,11 +21,34 @@ public abstract class Group extends Task {
 		//Let my subTasks try to encorporate themselves in the demo
 		encorporateChildren(demo);
 		//At this point, each of my subTasks is either in the demo or all of its pieces are in the demo
+		System.out.println();
+		System.out.println();
+		System.out.println("Incorporating:");
+        printMe(4);
+        System.out.println("Into Demo:");
+        printTaskList(demo);
+        System.out.println();
+        printTaskListLabels(demo);
 		createNewIncorporator(demo);
+		
 		incorporator.incorporate();
 		
 	}
 	
+	private void printTaskListLabels (List<Task> demo){
+	    for (Task task : demo) {
+	        System.out.print("|  " + task.getLabel() + "  ");
+	    }
+	    System.out.println();
+	}
+	
+   private void printTaskList(List<Task> demo){
+        for (Task task : demo) {
+            task.printMe(4);
+        }
+        System.out.println();
+    }
+   
 	public abstract void createNewIncorporator (List<Task> demo);
 	
 	public abstract void encorporateChildren (List<Task> demo);

@@ -16,8 +16,13 @@ public class Primitive extends Task {
 	
 	//All we have to do is correctly label versions of ourselves in the demo
 	public void incorporate(List<Task> demo) {
+	    boolean alreadyFound = false;
 		for (Task subTask : demo) {
-			if (this.contentEquals(subTask)) { subTask.setLabel(label); System.out.println("Successfully found: " + object + " in demo"); }
+			if (this.contentEquals(subTask)) { 
+			    if (alreadyFound) throw new Error ("An object should only appear once in each demo!");
+			    subTask.setLabel(label); System.out.println("Successfully found: " + object + " in demo"); 
+			    alreadyFound = true;
+			}
 		}
 	}
 	

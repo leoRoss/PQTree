@@ -12,7 +12,7 @@ public class PieceLabel extends Label {
 	}
 	
 	public String toString () {
-		return ""+id;
+		return id + "("+brotherUUID+"/"+brothers+")";
 	}
 	
 	public boolean isPiece () {
