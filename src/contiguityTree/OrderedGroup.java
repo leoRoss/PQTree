@@ -30,7 +30,7 @@ public class OrderedGroup extends Group {
 	private void copyCollection(Collection <Task> col, int [] subTaskDirections, int startIndex, int endIndex, int myDirection) {
 	    int index = 0;
         for (Task task : col){
-            if (subTaskDirections[startIndex+index]==myDirection) { //time to absorb, that means delete the subtask and steal his kids :)
+            if (subTaskDirections[startIndex+index]==myDirection && task.absoluteSize()>1 ) { //time to absorb, that means delete the subtask and steal his kids :)
                 copyCollection( ((Group)task).getSubTasks() );
             }
             else {

@@ -60,10 +60,16 @@ public class OrderedIncorporator extends Incorporator{
 
     public void incorporate () {
         //contiguousCandidate = [startIndex, endIndex, # of pieces]
+        List<Integer> debugCandidates = new ArrayList<Integer>();
         int [] contiguousCandidate = finder.nextGroup(); 
         int numberOfGroupsMade = 0;
         int numberOfPrimitivesInGroupsMade = 0;
         while (contiguousCandidate!=null) {
+            debugCandidates.add(contiguousCandidate[0]);
+            debugCandidates.add(contiguousCandidate[1]);
+            debugCandidates.add(contiguousCandidate[2]);
+            
+            
             VerifiedGroupOfTasks verifiedGroup = validator.validate(contiguousCandidate[0], contiguousCandidate[1]);
             if (verifiedGroup != null) {
                 Task task = builder.buildTask(verifiedGroup, contiguousCandidate[2]);
@@ -77,6 +83,15 @@ public class OrderedIncorporator extends Incorporator{
             }
             contiguousCandidate = finder.nextGroup(); 
         }
+        
+        
+        //debugging only
+        System.out.println("Candidates were:");
+        for (int i=0; i<debugCandidates.size(); i+=3) {
+            System.out.print("["+debugCandidates.get(i+0) +" - "+ debugCandidates.get(i+1)+ "](" + debugCandidates.get(i+2)+") , ");
+        }
+        System.out.println();
+        
         System.out.println("Made " + numberOfGroupsMade + " new tasks during incorporation" + " for a total Primitive count of " + numberOfPrimitivesInGroupsMade);
         validator.updateDemo(demo, group.getLabel().getId() );
         
@@ -331,18 +346,24 @@ public class OrderedIncorporator extends Incorporator{
              */
            
             //check first edge to ensure we are not breaking apart a pre-existing task
-            if (!upToDateDemoTasks[start].equals(upToDateDemoTasks[start+upToDateDemoTasks[start].absoluteSize()-1])) return  null;
+            if (start>0) {
+                if (upToDateDemoTasks[start].equals(upToDateDemoTasks[start-1])) return null;
+            }
+            
+          //check last edge to ensure we are not breaking apart a pre-existing task
+            if (end < tasksInL2Order.size()-1) {
+                if (upToDateDemoTasks[end].equals(upToDateDemoTasks[end+1])) return null;
+            }
             
             //record each subtask and their index with respect to list 1
-            int k =start;
-            while(k<=end){
-                tasksInL2Order.add(upToDateDemoTasks[k]);
-                L1IndexOfTasksInL2Order.add(demoIndexedInGroup[k]);
-                k+=upToDateDemoTasks[k].absoluteSize();
+            Task currentTask = null;
+            for (int k=start; k <= end; k++){
+                if ( ! upToDateDemoTasks[k].equals(currentTask)) {
+                    currentTask = upToDateDemoTasks[k];
+                    tasksInL2Order.add(upToDateDemoTasks[k]);
+                    L1IndexOfTasksInL2Order.add(demoIndexedInGroup[k]);
+                }
             }
-           
-            //check last edge to ensure we are not breaking apart a pre-existing task
-            if (k!=end+1) return null;
             
             //determine the GroupType based on L1IndexOfTasksInL2Order's numeric ordering
             int direction = determineDirection(L1IndexOfTasksInL2Order);
