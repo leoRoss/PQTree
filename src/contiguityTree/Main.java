@@ -11,7 +11,6 @@ public class Main {
 		
 		Object[] demo1 = new Object [] {"A", "B", "C", "D", "E"};
 		ct.observeDemo(demo1);
-		ct.observeDemo(demo1);
 		System.out.println();
 		System.out.println();
         System.out.println("Final Result:");
@@ -21,7 +20,10 @@ public class Main {
 		System.out.println();
 		
 		Object[] demo2 = new Object [] {"D", "A", "C", "B", "E"};
+		ct.observeDemo(demo1);
 		ct.observeDemo(demo2);
+		ct.observeDemo(demo1);
+        ct.observeDemo(demo2);
 		System.out.println();
 		System.out.println();
         System.out.println("Final Result:");
@@ -31,6 +33,10 @@ public class Main {
         System.out.println();
         
 		Object[] demo3 = new Object [] {"E", "D", "C", "B", "A"};
+		ct.observeDemo(demo2);
+        ct.observeDemo(demo3);
+        ct.observeDemo(demo1);
+        ct.observeDemo(demo2);
         ct.observeDemo(demo3);
         System.out.println();
         System.out.println();

@@ -59,38 +59,27 @@ public class OrderedIncorporator extends Incorporator{
     }
 
     public void incorporate () {
-        //contiguousCandidate = [startIndex, endIndex, # of pieces]
-        List<Integer> debugCandidates = new ArrayList<Integer>();
         int [] contiguousCandidate = finder.nextGroup(); 
         int numberOfGroupsMade = 0;
         int numberOfPrimitivesInGroupsMade = 0;
         while (contiguousCandidate!=null) {
-            debugCandidates.add(contiguousCandidate[0]);
-            debugCandidates.add(contiguousCandidate[1]);
-            debugCandidates.add(contiguousCandidate[2]);
+            System.out.println("Candidate: ["+contiguousCandidate[0] +" - "+ contiguousCandidate[1] + "](" + contiguousCandidate[2] +")");
             
             
             VerifiedGroupOfTasks verifiedGroup = validator.validate(contiguousCandidate[0], contiguousCandidate[1]);
             if (verifiedGroup != null) {
+                System.out.println("    Verified");
                 Task task = builder.buildTask(verifiedGroup, contiguousCandidate[2]);
                 numberOfGroupsMade++;
                 numberOfPrimitivesInGroupsMade+= task.absoluteSize();
-                //System.out.println("Make Task:");
-                //task.printMe(2);
-                //System.out.println();
-                //System.out.println();
+                System.out.println("    Made Task:");
+                task.printMe(2);
+                System.out.println();
+                System.out.println();
                 validator.update(contiguousCandidate[0], contiguousCandidate[1], task);
             }
             contiguousCandidate = finder.nextGroup(); 
         }
-        
-        
-        //debugging only
-        System.out.println("Candidates were:");
-        for (int i=0; i<debugCandidates.size(); i+=3) {
-            System.out.print("["+debugCandidates.get(i+0) +" - "+ debugCandidates.get(i+1)+ "](" + debugCandidates.get(i+2)+") , ");
-        }
-        System.out.println();
         
         System.out.println("Made " + numberOfGroupsMade + " new tasks during incorporation" + " for a total Primitive count of " + numberOfPrimitivesInGroupsMade);
         validator.updateDemo(demo, group.getLabel().getId() );
@@ -138,12 +127,12 @@ public class OrderedIncorporator extends Incorporator{
 	        //I must apologize for the ugly nested looping. Returning inside the nested loop must not affect the incrementing of i and j
 	        //This allows us to return to where we left of :)
 	        while (i<=size){
-	            if (j+i==size-1) {i++; j=-1; System.out.println();}
+	            if (j+i==size-1) {i++; j=-1;}
 	            while (j<size-i-1){
 	                j++;
 	                //System.out.println("Making books for["+i+"]["+j+"]");
 	                books[i][j]=new PieceIndexTracker(books[i-1][j],books[i-1][j+1]);
-	                System.out.print("| " + books[i][j].minIndex + "," + books[i][j].maxIndex);
+	                //System.out.print("| " + books[i][j].minIndex + "," + books[i][j].maxIndex);
 	                if (books[i][j].candidateForGrouping()) return new int[]{j,j+i, books[i][j].numberOfPeices()};
 	            }
 	        }
@@ -351,7 +340,7 @@ public class OrderedIncorporator extends Incorporator{
             }
             
           //check last edge to ensure we are not breaking apart a pre-existing task
-            if (end < tasksInL2Order.size()-1) {
+            if (end < upToDateDemoTasks.length-1) {
                 if (upToDateDemoTasks[end].equals(upToDateDemoTasks[end+1])) return null;
             }
             
