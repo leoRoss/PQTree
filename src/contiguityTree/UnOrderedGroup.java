@@ -15,6 +15,7 @@ public class UnOrderedGroup extends Group {
 		copyCollection(col);
 	}
 	
+	
 	protected void addTask (Task task) {subTasks.add(task);}
 	
 	public void encorporateChildren (List<Task>demo){

@@ -7,37 +7,22 @@ import java.util.HashSet;
 /*
  * RULES FOR THE PROGRAMMER:
  *  - Never change the labels of Tasks in the old Contiguity Tree
- *      - Only Tasks in the demo which have PieceLabels ever need to be relabeled (after they are resolved)
- *      - This is important for the HashSets used to dynamically track pieces
+ *      - Only Tasks in the demo which have PieceLabels ever need to be relabeled (right BEFORE they are resolved)
+ *          -A new group can never contain piecesLabels for hashing reasons
  *  - Two Tasks are equal as long as they have equal Labels
  *      - Labels are equal as long as they have the same id (and the same brotherUUID if PieceLabel)
  */
 
 
-//I have separated out the steps of the dynamically incorporated process to make it more understandable to a human
-
-
-
-/*We initialize max[0][..] and min[0][..] s.t. [0][i] = group.indexOf( demo.get(i) )
- * We dynamically compute the remaining max s.t. max[i][j]=Math.max(max[i-1][j],max[i-1][j+1])
- * We dynamically compute the remaining min s.t. max[i][j]=Math.min(min[i-1][j],min[i-1][j+1])
- * Let range = max-min
- * Iff range[i][i] == i then l2.get(i..i+j) is contiguous. (not true for i=0)
+/* 
+ * I have separated out the steps of the dynamically incorporated process to make it more understandable to a human
  *
- * Example:
- * list1 = A,B,C,D,E,F
- * list2 = E,F,A,C,D,B 
- *                                                               
- * max[0] = [4, 5, 0, 2, 3, 1]  min[0] = [4, 5, 0, 2, 3, 1]             [E, F, A, C, D, B]
- * max[1] = [5, 5, 2, 3, 3]     min[1] = [4, 0, 0, 2, 1]    max-min-i = [0, 4, 1, 0, 1]    // the two 0 signify that groups EF and CD are both contiguous in the two lists
- * max[2] = [5, 5, 3, 3]        min[2] = [0, 0, 0, 1]       max-min-i = [3, 3, 1, 0]       // 0 signifies that CDB are contiguous in the two lists
- * max[3] = [5, 5, 3]           min[3] = [0, 0, 0]          max-min-i = [2, 2, 0]          // 0 signifies that ACDB are contiguous in the two lists
- * max[4] = [5, 5]              min[4] = [0, 0]             max-min-i = [1, 1]             // neither EFACD or FACDB are contiguous in the two lists
- * max[5] = [5]                 min[5] = [0]                max-min-i = [0]                // of course, EFACDB is a contiguous group in the two lists
- *
- * Why? This makes sense because we want the range of a group to be equal to its size. 
- * A group 7, 9, 6, 8 has a range of 4 and a size of 4. However, 7, 10, 6, 8 has a range of 5 and a size of 4.
+ * Reading the comments top down should give you a thorough understanding of the process of incorporating a OrderedGroup into the demo
  */
+
+
+
+
 
 
 public class OrderedIncorporator extends Incorporator{
@@ -103,6 +88,118 @@ public class OrderedIncorporator extends Incorporator{
      * These classes are used to dynamically find all the groups of tasks which are contiguous
      * in both the OrderedGroup's subTasks and in the demo
      */
+    
+    /* HOW WE COMPUTE CONITGUOUS GROUPS...
+     * 
+     * We use an 2D Array of PieceIndexTrackers, books, to keep keep information about a subgroup of the demo
+     * books[i][j] keeps information about the subgroup demo(j..i+j)
+     * 
+     * -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+     * 
+     * Information: Max and Min
+     * 
+     * Step1: 
+     *      For all j, we initialize books[0][..].max and books[0][..].min to = group.indexOf( demo.get(j) )
+     * 
+     * Dynamic Step:
+     *      books[i][j].max=Math.max(books[i-1][j].max,books[i-1][j+1].max)
+     *      books[i][j].min=Math.min(books[i-1][j].min,books[i-1][j+1].min)
+     *      
+     * Why?
+     *      Let range = max-min
+     *      Iff books[i][i].range == i then demo.get(j..i+j) is contiguous
+     *
+     *      Example:
+     *          group = A,B,C,D,E,F
+     *          demo  = E,F,A,C,D,B 
+     *                                                               
+     *          max[0] = [4, 5, 0, 2, 3, 1]  min[0] = [4, 5, 0, 2, 3, 1]             [E, F, A, C, D, B]
+     *          max[1] = [5, 5, 2, 3, 3]     min[1] = [4, 0, 0, 2, 1]    max-min-i = [0, 4, 1, 0, 1]    // the two 0 signify that groups EF and CD are both contiguous in the two lists
+     *          max[2] = [5, 5, 3, 3]        min[2] = [0, 0, 0, 1]       max-min-i = [3, 3, 1, 0]       // 0 signifies that CDB are contiguous in the two lists
+     *          max[3] = [5, 5, 3]           min[3] = [0, 0, 0]          max-min-i = [2, 2, 0]          // 0 signifies that ACDB are contiguous in the two lists
+     *          max[4] = [5, 5]              min[4] = [0, 0]             max-min-i = [1, 1]             // neither EFACD or FACDB are contiguous in the two lists
+     *          max[5] = [5]                 min[5] = [0]                max-min-i = [0]                // of course, EFACDB is a contiguous group in the two lists
+     *
+     * Why? This makes sense because we want the range of a group to be equal to its size. 
+     * A group 7, 9, 6, 8 has a range of 4 and a size of 4. However, 7, 10, 6, 8 has a range of 5 and a size of 4.
+     * 
+     * -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+     * 
+     * Information: Pieces
+     * 
+     * The above logic and example does not involve pieces. It is therefore, incorrect, but its a good place to start...
+     * 
+     * A more realistic situation would look more like this:
+     *      group = A,B,C,D,E,F
+     *      demo  = E,F',A,F',C',D,B,C'
+     * 
+     * As you can see, F' and C' exist in multiple places in the demo. The ' indicates that they are pieces of F and C.
+     * This implies that when C and F attempted to incorporate themselves into the demo, 
+     * they were unable to find an entire contiguous group with all their subtasks.
+     * Instead, F (and C) found all the chunks of its subtasks in the demo, and did its best to resolve each chunk.
+     * 
+     * What does this mean for us?
+     * A group is not truly contiguous if it has one piece without having all the matching pieces (its brothers).
+     * 
+     * In the example above, we cannot match C',D together, even though our range requirement above is satisfied.
+     * Why?
+     * Imagine C = a non-reversible ordered group [3,4,5]
+     *      and D = [6,7]
+     * By nature of Contiguity Trees, we know that C and D have NOT always appeared sequentially
+     *      Why? Because, otherwise, we would only have a single non-reversible ordered group [3,4,5,6,7]
+     * 
+     * Without loss of Gen, lets pretend in past demos have seen CD and DC.... [3,4,5],[6,7] and [6,7],[3,4,5]
+     * Now, in the demo, we have .... C',D,B,C' = {4,3}, [6,7], B, 5   where the first C`={4,3} and the last C' = 5
+     * Obviously, saying that C',D (4,3,6,7) is a contiguous group is incorrect!
+     * 
+     * Thus, we must wait until we have all the pieces of C before forming a new group.
+     * Moreover, this group C',D,B,C' must be an UnorderedGroup.
+     * 
+     * -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+     * 
+     * OK! So now we understand the issue of Pieces. 
+     * We could obviously keep track of all the pieces in books[i][j] and check if we have any incomplete brotherhoods.
+     * 
+     * Instead,
+     * Each book[][] keeps a hashset called myPeices used to track the brotherhoods it contains. 
+     * Each book also keeps track of the numberOfFullTasks, the desiredNumberOfPieces (we aren't ever sure), and the numberOfBrotherhoods
+     * 
+     * Dynamic Step:
+     *      books[i][j] copies the above hashset and counter variables from books[i-1][j].myPeices
+     *      
+     *      Clearly, this is not sufficient. books[i][j] is supposed to track demo[j..i+j] but is only tracking demo[j..i-1+j]
+     *      Obviously, we are need to track the missing demo[i+j] 
+     *      Fortunately, books[i-1][j+1].highestIndexOriginalTask = demo[i+j]
+     * 
+     *      If demo[i+j] is a piece, we check if books[i][j].myPeices contains demo[i+j]
+     *          Remember that all brothers of the same brotherhood will be hashed the same and are all equal! :)
+     *          So now, if its a piece from a new brotherhood:
+     *              we increase desiredNumberOfPieces by demo[i+j].sizeOfBrotherhood() and numberOfBrotherhoods++
+     *              and we add demo[i+j] to the hashset, so the above operation is never repeated for that brotherhood
+     *      Otherwise, demo[i+j] is a full task, and we numberOfFullTasks++;
+     *      
+     *      
+     * The final test:
+     *     
+     *     demo[j..i+j] is contiguous iff 2 conditions are satisfied:
+     *          books[i][j].range + 1 + books[i][j].desiredNumberOfPieces - numberOfBrotherhoods == i
+     *          books[i][j].numberOfFullTasks + books[i][j].desiredNumberOfPieces = i
+     *          
+     *          Note: i = numberOfTasksTracked
+     *     
+     *     Ex:
+     *          assume AAABBBBCCDDDDE is contiguous (has all the pieces in each brotherhood)
+     *          range +1 = 4-0+1 = 5
+     *          
+     *          number of tasks tracked = 14
+     *          number of full tasks = 1 ... just E
+     *          the desire number of pieces = 3As + 4Bs + 2Cs + 4Ds = 13
+     *          number of brotherhoods = 4 ... A, B, C, and D brotherhoods
+     *          
+     *          indeed 5+13-4 == 14
+     *          indeed 1+13 == 14
+     *          
+     */
 	
 	private class ContiguousGroupFinder {
 	    private PieceIndexTracker[][] books;
@@ -120,7 +217,8 @@ public class OrderedIncorporator extends Incorporator{
             System.out.println();
 	    }
 	    
-	    //Keep dynamically building books from where we left off until we find a new candidate
+	    //This function dynamically builds books until it finds a candidate, which it returns
+	    //When it is called again, it continues building from where it left off
 	    public int[] nextGroup () {
 	        int size = books[0].length;
 	        
@@ -130,9 +228,7 @@ public class OrderedIncorporator extends Incorporator{
 	            if (j+i==size-1) {i++; j=-1;}
 	            while (j<size-i-1){
 	                j++;
-	                //System.out.println("Making books for["+i+"]["+j+"]");
 	                books[i][j]=new PieceIndexTracker(books[i-1][j],books[i-1][j+1]);
-	                //System.out.print("| " + books[i][j].minIndex + "," + books[i][j].maxIndex);
 	                if (books[i][j].candidateForGrouping()) return new int[]{j,j+i, books[i][j].numberOfPeices()};
 	            }
 	        }
@@ -149,101 +245,92 @@ public class OrderedIncorporator extends Incorporator{
 	    }
 	    
 	    
-    	//Imagine we are incorporating OrderedGroup oGroup into the List<Task> demo.
-    	//oGroup also contains a List<Task>.
-    	//Let PieceIndexTracker tracker be used to track the Tasks in the demo from index 4 to 7.
-    	//minIndex is the smallest index of a Task in oGroup which also exists in demo[4,7].
-    	//maxIndex is the largest index of a Task in oGroup which also exists in demo[4,7].
-    	//We define exists to include tasks in the demo which are Pieces of a Task in oGroup.
-    	//The pieces Map is used to keep track of these Pieces. We can only form a new Group if we have all the Pieces of a Task.
+	    
     	private class PieceIndexTracker {
-    		int minIndex, maxIndex;
-    		HashSet<Task> tasksOfMyPieces;
-    		HashSet<Task> myPieces;
-    		//When merging two PieceIndexTrackers, I just need to add the highest index task of one to the pieces of the other
-    		Task taskOfMyHighestIndexOriginalTask; 
-    		Task highestIndexOriginalTask;
-    		int desiredNumberOfPieces;
-    		int numberOfDemoTasksTracked; //my height in books[][]
+    		protected int minIndex, maxIndex;
+    		protected HashSet<Task> myPieces;
+    		//When merging two PieceIndexTrackers, I need to add the highest index task of one to the pieces of the other
+    		protected Task highestIndexOriginalDemoTask;
+    		protected int desiredNumberOfPieces;
+    		protected int numberOfBrotherhoods;
+    		protected int numberOfFullTasks; //as opposed to Pieces
+    		protected int numberOfDemoTasksTracked; //= i+1 in books[i][j] ie: size of demo(j..j+i)
     		
     		public PieceIndexTracker (List<Task> subTasks, Task task, int demoSize) {
-    			int indexInGroup = lenientIndexOfSubTask(subTasks, task);
-    			
+    			myPieces = new HashSet<Task> ();
+                desiredNumberOfPieces=0;
+                numberOfBrotherhoods=0;
+                numberOfFullTasks=0;
+                numberOfDemoTasksTracked = 1;
+                
+                
+                int indexInGroup = lenientIndexOfSubTask(subTasks, task);
+                
     			if (indexInGroup==-1) { //the task does not exist in this group
-    			    minIndex = -1;
-    			    maxIndex = demoSize+1; //this way no group containing this task will ever be a candidate
+    			    minIndex = -demoSize*100;
+    			    maxIndex = demoSize*100; //this way no group containing this task will ever be a candidate
     			    
-    			    highestIndexOriginalTask = null; 
-                    taskOfMyHighestIndexOriginalTask = null;
+    			    highestIndexOriginalDemoTask = null; 
     			}
     			else {
         			minIndex = indexInGroup;
         			maxIndex = indexInGroup;
         			
-        			//A vague copy create a task with an equivalent label
-                    //Why? b/c this task may become relabeled when it becomes part of a group (the new Contiguity Tree should not contain any Tasks with PieceLabels)
-                    //Since we are tracking pieces using a label-based hash, we need persistent labels
-                    highestIndexOriginalTask = task.vagueCopy(); 
-                    taskOfMyHighestIndexOriginalTask = subTasks.get(indexInGroup); 
+        			//A vague copy creates a placeholder task with an equivalent label
+                    //Since we are tracking pieces using a label-based hashset, we need persistent labels
+        			//the highestIndexOriginalDemoTask may become relabeled when it becomes part of a group (a new Group should never contain any Tasks with PieceLabels)
+                    highestIndexOriginalDemoTask = task.vagueCopy(); 
     			}
     			
-    			
-    			
-    			myPieces = new HashSet<Task> ();
-    			tasksOfMyPieces = new HashSet<Task> ();
-    			
-    			if (highestIndexOriginalTask!=null && highestIndexOriginalTask.isPiece()) {
-    				myPieces.add(highestIndexOriginalTask);
-    				tasksOfMyPieces.add(taskOfMyHighestIndexOriginalTask);	
-    				desiredNumberOfPieces = highestIndexOriginalTask.getNumberOfBrothers();
+    			if (highestIndexOriginalDemoTask!=null && highestIndexOriginalDemoTask.isPiece()) {
+    				myPieces.add(highestIndexOriginalDemoTask);
+    				desiredNumberOfPieces+= highestIndexOriginalDemoTask.getBrotherhoodSize();
+    				numberOfBrotherhoods++;
     			}
     			else {
-    				desiredNumberOfPieces=0;
+    			    numberOfFullTasks++;
     			}
-    			
-    			numberOfDemoTasksTracked = 1;
     		}
 
             public PieceIndexTracker (PieceIndexTracker tracker1, PieceIndexTracker tracker2) {
                 minIndex = Math.min(tracker1.minIndex, tracker2.minIndex);
     			maxIndex = Math.max(tracker1.maxIndex, tracker2.maxIndex);
+    			numberOfFullTasks = tracker1.numberOfFullTasks;
     			numberOfDemoTasksTracked = tracker1.numberOfDemoTasksTracked+1;
+    			numberOfBrotherhoods = tracker1.numberOfBrotherhoods;
     			copyPieceTrackingFrom(tracker1);
-    			addHighestIndexTaskFrom(tracker2);
+    			addHighestIndexOriginalDemoTaskFrom(tracker2);
     		}
     		
     		//NOTE: We are making stealing and editing the Sets from the layer below us. This is OK as we no longer need them. 
     		//However, we must take note that tracker1 is no longer valid for dynamic computing
     		private void copyPieceTrackingFrom (PieceIndexTracker tracker1) {
     			myPieces = tracker1.myPieces;
-    			tasksOfMyPieces = tracker1.tasksOfMyPieces;
     			desiredNumberOfPieces = tracker1.desiredNumberOfPieces;
     		}
     		
-    		private void addHighestIndexTaskFrom (PieceIndexTracker tracker2) {
-    			highestIndexOriginalTask = tracker2.highestIndexOriginalTask;
-    			taskOfMyHighestIndexOriginalTask = tracker2.taskOfMyHighestIndexOriginalTask;
+    		private void addHighestIndexOriginalDemoTaskFrom (PieceIndexTracker tracker2) {
+    			highestIndexOriginalDemoTask = tracker2.highestIndexOriginalDemoTask;
     			
-    			if (highestIndexOriginalTask!= null && highestIndexOriginalTask.isPiece()) {
-    				myPieces.add(highestIndexOriginalTask);
-    				
+    			if (highestIndexOriginalDemoTask!= null && highestIndexOriginalDemoTask.isPiece()) {
     				//If we are adding a new set of pieces to track, we must update our piece count
-    				if (!tasksOfMyPieces.contains(taskOfMyHighestIndexOriginalTask)) {
-    					tasksOfMyPieces.add(taskOfMyHighestIndexOriginalTask);
-    					desiredNumberOfPieces += highestIndexOriginalTask.getNumberOfBrothers();
+    				if (!myPieces.contains(highestIndexOriginalDemoTask)) {
+    				    myPieces.add(highestIndexOriginalDemoTask);
+    					desiredNumberOfPieces+= highestIndexOriginalDemoTask.getBrotherhoodSize();
+    					numberOfBrotherhoods++;
     				}
+    			}
+    			else {
+    			    numberOfFullTasks++;
     			}
     		}
     		
     		public boolean candidateForGrouping () {
-    			if (!allPiecesHaveAllTheirBrothers()) return false;
     			int rangeOfIndices = maxIndex - minIndex;
-    			if (rangeOfIndices + desiredNumberOfPieces + 1 == numberOfDemoTasksTracked) return true;
-    			return false;
-    		}
-    		
-    		public boolean allPiecesHaveAllTheirBrothers () {
-    			return desiredNumberOfPieces == myPieces.size();
+    			if (numberOfFullTasks+desiredNumberOfPieces != numberOfDemoTasksTracked) return false;
+    			int supplementalPieces = desiredNumberOfPieces - numberOfBrotherhoods; //AAABC has 2 supplemental As
+    			if (rangeOfIndices + 1 + supplementalPieces != numberOfDemoTasksTracked) return false;
+    			return true;
     		}
     		
     		public int numberOfPeices() {
@@ -576,10 +663,10 @@ public class OrderedIncorporator extends Incorporator{
 		    }
 		    else {
     		    if (direction==1){ //increasing task indices. ex: 3, 4, 7, 11
-    		        task = new OrderedGroup(new Label(), null, tasks, false, directionOfTasks, startIndex, endIndex, direction); //false bc task order is not reversible
+    		        task = new OrderedGroup(new Label(), null, tasks, false, directionOfTasks, startIndex, direction); //false bc task order is not reversible
     		    }
     		    else if (direction==-1){  //decreasing task indices. ex: 11, 7, 4, 3
-    		        task = new OrderedGroup(new Label(), null, verifiedGroup.tasks, true, directionOfTasks, startIndex, endIndex, direction); //true bc task order is reversible
+    		        task = new OrderedGroup(new Label(), null, verifiedGroup.tasks, true, directionOfTasks, startIndex, direction); //true bc task order is reversible
     		    }
     		    else if (direction==0){  //fluctuating task indices. ex: 11, 4, 7, 3
     		        task = new UnOrderedGroup(new Label(), null, verifiedGroup.tasks);
@@ -610,6 +697,8 @@ public class OrderedIncorporator extends Incorporator{
             List<Task> tasks = verifiedGroup.tasks;
             int direction = verifiedGroup.direction;
             int startIndex = verifiedGroup.start;
+            
+            if (tasks.size()!=verifiedGroup.end-verifiedGroup.start+1) throw new Error ("We fucked up!");
             int endIndex = verifiedGroup.end;
             
             //if there are any pieces we have to make an UnOrderedGroup no matter what
@@ -618,10 +707,10 @@ public class OrderedIncorporator extends Incorporator{
             }
             else {
                 if (direction==1){ //increasing task indices. ex: 3, 4, 7, 11
-                    task = new OrderedGroup(new Label(), null, tasks, true, directionOfTasks, startIndex, endIndex, direction); //true bc task order is reversible
+                    task = new OrderedGroup(new Label(), null, tasks, true, directionOfTasks, startIndex, direction); //true bc task order is reversible
                 }
                 else if (direction==-1){  //decreasing task indices. ex: 11, 7, 4, 3
-                    task = new OrderedGroup(new Label(), null, verifiedGroup.tasks, true, directionOfTasks, startIndex, endIndex, direction); //true bc task order is reversible
+                    task = new OrderedGroup(new Label(), null, verifiedGroup.tasks, true, directionOfTasks, startIndex, direction); //true bc task order is reversible
                 }
                 else if (direction==0){  //fluctuating task indices. ex: 11, 4, 7, 3
                     task = new UnOrderedGroup(new Label(), null, verifiedGroup.tasks);

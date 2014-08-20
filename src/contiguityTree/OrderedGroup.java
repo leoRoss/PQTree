@@ -22,15 +22,15 @@ public class OrderedGroup extends Group {
 	}
 	
 	//This constructor will absorb any subTasks which share my direction
-	public OrderedGroup (Label label, Task parent,  Collection <Task> col, boolean rev, int [] subTaskDirections, int startIndex, int endIndex, int myDirection) {
-        this(label, parent, col.size(), rev);
-        copyCollection(col, subTaskDirections, startIndex, endIndex, myDirection);
+	public OrderedGroup (Label label, Task parent,  Collection <Task> entireCollectionToCopy, boolean rev, int [] subTaskDirections, int directionStartIndex, int myDirection) {
+        this(label, parent, entireCollectionToCopy.size(), rev);
+        copyCollection(entireCollectionToCopy, subTaskDirections, directionStartIndex, myDirection);
     }
 	
-	private void copyCollection(Collection <Task> col, int [] subTaskDirections, int startIndex, int endIndex, int myDirection) {
+	private void copyCollection(Collection <Task> entireCollectionToCopy, int [] subTaskDirections, int directionStartIndex, int myDirection) {
 	    int index = 0;
-        for (Task task : col){
-            if (subTaskDirections[startIndex+index]==myDirection && task.absoluteSize()>1 ) { //time to absorb, that means delete the subtask and steal his kids :)
+        for (Task task : entireCollectionToCopy){
+            if (subTaskDirections[directionStartIndex+index]==myDirection && task.absoluteSize()>1 ) { //time to absorb, that means delete the subtask and steal his kids :)
                 copyCollection( ((Group)task).getSubTasks() );
             }
             else {

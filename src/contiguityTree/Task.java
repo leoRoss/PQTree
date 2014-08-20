@@ -73,7 +73,7 @@ public abstract class Task {
 		for (int x=0; x<depth; x++) System.out.print("    "); 
 	}
 	
-	public int getNumberOfBrothers() {
-		return label.getNumberOfBrothers();
+	public int getBrotherhoodSize() {
+		return label.getBrotherhoodSize();
 	}
 }

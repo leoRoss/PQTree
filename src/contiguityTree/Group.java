@@ -70,6 +70,13 @@ public abstract class Group extends Task {
 		}
 	}
 	
+	/*protected void copyCollection (Collection <Task> col, int start, int end){
+        for (int i=start; i<=end task : col){
+            task.setParent((Task)this);
+            addTask(task);
+        }
+    }*/
+	
 	protected abstract void addTask (Task task);
 	
 	protected abstract boolean sameType (Task task);

@@ -45,6 +45,38 @@ public class Main {
         System.out.println();
         System.out.println();
         System.out.println();
+        System.out.println();
+        System.out.println();
+        System.out.println();
+        
+        
+        
+        
+        
+        
+        ContiguityTree ct2 = new ContiguityTree();
+        System.out.println("Successfully made tree\n");
+        
+        Object[] demo12 = new Object [] {"A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M"};
+        ct2.observeDemo(demo12);
+        System.out.println();
+        System.out.println();
+        System.out.println("Final Result:");
+        ct2.print();
+        System.out.println();
+        System.out.println();
+        System.out.println();
+        
+        Object[] demo22 = new Object [] {"B", "C", "D", "J", "G", "I", "H", "F", "K", "E", "L", "M", "A"};
+        ct2.observeDemo(demo22);
+        System.out.println();
+        System.out.println();
+        System.out.println("Final Result:");
+        ct2.print();
+        System.out.println();
+        System.out.println();
+        System.out.println();
+        
 	}
 
 }

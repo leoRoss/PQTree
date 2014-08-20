@@ -2,31 +2,29 @@ package contiguityTree;
 
 //SubLabels are used to track pieces of split nodes
 public class PieceLabel extends Label {
-	private int brotherUUID; //unique id to differentiate amongst us brothers
-	private int brothers; //number of brother pieces
+	private int brotherhoodSize; //number of brother pieces
 
-	PieceLabel (int labelId, int uuid, int bros) {
+	PieceLabel (int labelId, int bros) {
 		super(labelId);
-		brotherUUID=uuid;
-		brothers=bros;
+		brotherhoodSize=bros;
 	}
 	
 	public String toString () {
-		return id + "("+brotherUUID+"/"+brothers+")";
+		return id + "("+brotherhoodSize+")";
 	}
 	
 	public boolean isPiece () {
 		return true;
 	}
 	
-	public int getNumberOfBrothers () {
-		return brothers;
+	public int getBrotherhoodSize () {
+		return brotherhoodSize;
 	}
 
 	@Override
 	public int hashCode() {
 		final int prime = 31;
-		return prime * super.hashCode() + brotherUUID;
+		return prime * super.hashCode();
 	}
 	
 	public boolean equals(Object obj) {
@@ -34,11 +32,11 @@ public class PieceLabel extends Label {
         if (obj == null) return false;
         if (!(obj instanceof PieceLabel)) return false;
         PieceLabel pieceLabel = (PieceLabel) obj;
-		return id == pieceLabel.id && brotherUUID == pieceLabel.brotherUUID;
+		return id == pieceLabel.id;
 	}
 	
 	public Label copyLabel() {
-        PieceLabel copy = new PieceLabel(id, brotherUUID, brothers);
+        PieceLabel copy = new PieceLabel(id, brotherhoodSize);
         return copy;
     }
 }
