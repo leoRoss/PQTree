@@ -33,8 +33,8 @@ public class ContiguityTree {
 	
 	public void observeDemo (Object[] demo) {
 		List<Task> wrappedDemo = new ArrayList<Task>(demo.length);
-		for (Object obj : demo){
-			wrappedDemo.add(new Primitive(new Label(), null, obj)); //null parents for now
+		for (int i=0; i<demo.length; i++){
+			wrappedDemo.add(new Primitive(new Label(), null, demo[i])); //null parents for now
 		}
 		incorporate(wrappedDemo);
 	}

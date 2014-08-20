@@ -15,6 +15,13 @@ public class UnOrderedGroup extends Group {
 		copyCollection(col);
 	}
 	
+	//copy over subTasks from a collection into my subTasks
+    //assign myself as each subTask's parent
+    private void copyCollection (Collection <Task> col){
+        for (Task task : col){
+            addTaskSafe(task);
+        }
+    }
 	
 	protected void addTask (Task task) {subTasks.add(task);}
 	
@@ -32,4 +39,8 @@ public class UnOrderedGroup extends Group {
 	protected String name () {return "Unordered Group";}
 	public boolean isOrdered () {return false;}
 	public boolean isReversible () {return false;}
+	
+	protected Collection<Task> getSubTasks (){
+        return getSetSubTasks();
+    }
 }

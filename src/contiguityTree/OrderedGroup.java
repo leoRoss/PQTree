@@ -2,6 +2,7 @@ package contiguityTree;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 
 
@@ -13,53 +14,61 @@ public class OrderedGroup extends Group {
 	//Various Constructors
 	public OrderedGroup (Label label, Task parent, int size, boolean rev) {
 		super(label, parent, size);
-		setUp(rev, size);
+		orderedSubTasks = new ArrayList<Task>(size);
+        reversible = rev;
 	}
 	
-	public OrderedGroup (Label label, Task parent,  Collection <Task> col, boolean rev) {
+	public OrderedGroup (Label label, Task parent,  List <Task> col, boolean rev) {
 		this(label, parent, col.size(), rev);
-		copyCollection(col);
+		addListToSubTasks(col);
 	}
+    
 	
 	//This constructor will absorb any subTasks which share my direction
-	public OrderedGroup (Label label, Task parent,  Collection <Task> entireCollectionToCopy, boolean rev, int [] subTaskDirections, int directionStartIndex, int myDirection) {
-        this(label, parent, entireCollectionToCopy.size(), rev);
-        copyCollection(entireCollectionToCopy, subTaskDirections, directionStartIndex, myDirection);
+	public OrderedGroup (Label label, Task parent,  List <Task> subTasksToAdd, boolean rev, List<Integer> subTaskDirections, int myDirection) {
+        this(label, parent, subTasksToAdd.size(), rev);
+        addListToSubTasks(subTasksToAdd, subTaskDirections, myDirection);
     }
 	
-	private void copyCollection(Collection <Task> entireCollectionToCopy, int [] subTaskDirections, int directionStartIndex, int myDirection) {
-	    int index = 0;
-        for (Task task : entireCollectionToCopy){
-            if (subTaskDirections[directionStartIndex+index]==myDirection && task.absoluteSize()>1 ) { //time to absorb, that means delete the subtask and steal his kids :)
-                copyCollection( ((Group)task).getSubTasks() );
+	private void addListToSubTasks(List <Task> entireListToAdd, List<Integer> subTaskDirections, int myDirection) {
+	    Iterator<Task> taskIt = entireListToAdd.iterator();
+	    Iterator<Integer> dirIt = subTaskDirections.iterator();
+	    while(taskIt.hasNext()) {
+	        Task subTask = taskIt.next();
+	        int subTaskDir = dirIt.next(); //we want this to fail if directions run out before subtask do
+	        if (subTaskDir==myDirection && subTask instanceof OrderedGroup ) { //time to absorb, that means remove all ties to the subtask and steal his kids :)
+	            addListToSubTasks( ((OrderedGroup)subTask).getOrderedSubTasks() );
             }
-            else {
-                task.setParent((Task)this);
-                addTask(task);
+	        else {
+                addTaskSafe(subTask);
             }
-            index++;
-        }
+	    }
 	}
 	
-	public void setUp (boolean rev, int size){
-		orderedSubTasks = new ArrayList<Task>(size);
-		reversible = rev;
-	}
+	private void addListToSubTasks(List <Task> entireListToAdd) {
+	    for (Task subTask : entireListToAdd)  addTaskSafe(subTask);
+    }
 	
 	protected void addTask (Task task) {
-		subTasks.add(task);
-		orderedSubTasks.add(task);
-	}
+        if (task.isPiece()) throw new Error ("Please only add Tasks using addTaskSafe()!");
+        subTasks.add(task);
+        orderedSubTasks.add(task);
+    }
 	
-	public void encorporateChildren (List<Task>demo){
-		for (Task subTask : orderedSubTasks) {
-			subTask.incorporate(demo);
-		}
-	}
 	
-	public void createNewIncorporator(List<Task> demo) {
+	//INCORPORATION METHODS
+    public void encorporateChildren (List<Task>demo){
+        for (Task subTask : orderedSubTasks) {
+            subTask.incorporate(demo);
+        }
+    }
+    
+    public void createNewIncorporator(List<Task> demo) {
         incorporator = new OrderedIncorporator(this, demo);
     }
+    
+
+    
 	
 	protected boolean sameType (Task task) {
 		if (task instanceof OrderedGroup){
@@ -76,10 +85,14 @@ public class OrderedGroup extends Group {
 	public boolean isOrdered () {return true;}
 	public boolean isReversible () {return reversible;}
 	
-	protected Collection<Task> getSubTasks (){return orderedSubTasks;}
+	protected List<Task> getOrderedSubTasks (){return orderedSubTasks;}
 	
 	public Task getSubTask (int index) {
 		return orderedSubTasks.get(index); 
+	}
+	
+	protected Collection<Task> getSubTasks (){
+	    return getOrderedSubTasks();
 	}
 	
 }
