@@ -61,7 +61,7 @@ public class OrderedIncorporator extends Incorporator{
                 task.printMe(2);
                 System.out.println();
                 System.out.println();
-                validator.update(contiguousCandidate[0], contiguousCandidate[1], task);
+                validator.update(contiguousCandidate[0], contiguousCandidate[1], task, );
             }
             contiguousCandidate = finder.nextGroup(); 
         }
@@ -162,7 +162,7 @@ public class OrderedIncorporator extends Incorporator{
      * 
      * Instead,
      * Each book[][] keeps a hashset called myPeices used to track the brotherhoods it contains. 
-     * Each book also keeps track of the numberOfFullTasks, the desiredNumberOfPieces (we aren't ever sure), and the numberOfBrotherhoods
+     * Each book also keeps track of the desiredNumberOfPieces (instead of how many there really are) and the numberOfBrotherhoods
      * 
      * Dynamic Step:
      *      books[i][j] copies the above hashset and counter variables from books[i-1][j].myPeices
@@ -183,21 +183,26 @@ public class OrderedIncorporator extends Incorporator{
      *     
      *     demo[j..i+j] is contiguous iff 2 conditions are satisfied:
      *          books[i][j].range + 1 + books[i][j].desiredNumberOfPieces - numberOfBrotherhoods == i
-     *          books[i][j].numberOfFullTasks + books[i][j].desiredNumberOfPieces = i
-     *          
-     *          Note: i = numberOfTasksTracked
+     *          where: i = numberOfTasksTracked
      *     
      *     Ex:
      *          assume AAABBBBCCDDDDE is contiguous (has all the pieces in each brotherhood)
-     *          range +1 = 4-0+1 = 5
-     *          
+     *               
      *          number of tasks tracked = 14
-     *          number of full tasks = 1 ... just E
+     *          range +1 = 4-0+1 = 5
      *          the desire number of pieces = 3As + 4Bs + 2Cs + 4Ds = 13
      *          number of brotherhoods = 4 ... A, B, C, and D brotherhoods
      *          
-     *          indeed 5+13-4 == 14
-     *          indeed 1+13 == 14
+     *          indeed 5+13-4 = 14 == 14
+     *          
+     *          As you can see below, this test is sufficient, as any action which would break contiguity always relatively increases the left side of the equation 
+     *          
+     *          Add a full from out of range:                        + more than 1   == +1       left side relatively greater
+     *          Remove a full:                                              +0       == -1       left side relatively greater
+     *          Add a piece from an out of range brotherhood  +more than 1 +size -1  == +1       left side relatively greater
+     *          Add a entire brotherhood from out of range    +more than 1 +size -1  == +size    left side relatively greater
+     *          Remove a piece from brotherhood                              +0      == -1       left side relatively greater
+     *          Remove an entire brotherhood                           -size +1      == -size    left side relatively greater
      *          
      */
 	
@@ -249,18 +254,15 @@ public class OrderedIncorporator extends Incorporator{
     	private class PieceIndexTracker {
     		protected int minIndex, maxIndex;
     		protected HashSet<Task> myPieces;
-    		//When merging two PieceIndexTrackers, I need to add the highest index task of one to the pieces of the other
-    		protected Task highestIndexOriginalDemoTask;
+    		protected Task highestIndexOriginalDemoTask; //the original task in demo[j+i], used facilitate merging two PieceIndexTrackers
     		protected int desiredNumberOfPieces;
     		protected int numberOfBrotherhoods;
-    		protected int numberOfFullTasks; //as opposed to Pieces
     		protected int numberOfDemoTasksTracked; //= i+1 in books[i][j] ie: size of demo(j..j+i)
     		
     		public PieceIndexTracker (List<Task> subTasks, Task task, int demoSize) {
     			myPieces = new HashSet<Task> ();
                 desiredNumberOfPieces=0;
                 numberOfBrotherhoods=0;
-                numberOfFullTasks=0;
                 numberOfDemoTasksTracked = 1;
                 
                 
@@ -287,23 +289,18 @@ public class OrderedIncorporator extends Incorporator{
     				desiredNumberOfPieces+= highestIndexOriginalDemoTask.getBrotherhoodSize();
     				numberOfBrotherhoods++;
     			}
-    			else {
-    			    numberOfFullTasks++;
-    			}
     		}
 
             public PieceIndexTracker (PieceIndexTracker tracker1, PieceIndexTracker tracker2) {
                 minIndex = Math.min(tracker1.minIndex, tracker2.minIndex);
     			maxIndex = Math.max(tracker1.maxIndex, tracker2.maxIndex);
-    			numberOfFullTasks = tracker1.numberOfFullTasks;
     			numberOfDemoTasksTracked = tracker1.numberOfDemoTasksTracked+1;
     			numberOfBrotherhoods = tracker1.numberOfBrotherhoods;
     			copyPieceTrackingFrom(tracker1);
     			addHighestIndexOriginalDemoTaskFrom(tracker2);
     		}
     		
-    		//NOTE: We are making stealing and editing the Sets from the layer below us. This is OK as we no longer need them. 
-    		//However, we must take note that tracker1 is no longer valid for dynamic computing
+    		//NOTE: We are stealing (not copying) and further editing the HashSet from the layer below us. This is OK as we no longer need them. 
     		private void copyPieceTrackingFrom (PieceIndexTracker tracker1) {
     			myPieces = tracker1.myPieces;
     			desiredNumberOfPieces = tracker1.desiredNumberOfPieces;
@@ -320,17 +317,12 @@ public class OrderedIncorporator extends Incorporator{
     					numberOfBrotherhoods++;
     				}
     			}
-    			else {
-    			    numberOfFullTasks++;
-    			}
     		}
     		
     		public boolean candidateForGrouping () {
     			int rangeOfIndices = maxIndex - minIndex;
-    			if (numberOfFullTasks+desiredNumberOfPieces != numberOfDemoTasksTracked) return false;
     			int supplementalPieces = desiredNumberOfPieces - numberOfBrotherhoods; //AAABC has 2 supplemental As
-    			if (rangeOfIndices + 1 + supplementalPieces != numberOfDemoTasksTracked) return false;
-    			return true;
+    			return rangeOfIndices + 1 + supplementalPieces == numberOfDemoTasksTracked;
     		}
     		
     		public int numberOfPeices() {
@@ -367,16 +359,19 @@ public class OrderedIncorporator extends Incorporator{
 	
 	private class Validator {
 	    private Task[] upToDateDemoTasks;
+	    private int[] directionOfDemoTasks;
 	    private int [] demoIndexedInGroup;
 	    
 	    public Validator (List<Task> demo, int [] indexedInGroup) {
 	        int demoSize = demo.size();
 	        upToDateDemoTasks = new Task[demoSize];
 	        demoIndexedInGroup = new int [demoSize];
+	        directionOfDemoTasks = new int [demoSize];
 	        int index=0;
             for (Task demoTask : demo){
                 upToDateDemoTasks[index] = demoTask;
                 demoIndexedInGroup[index] = indexedInGroup[index];
+                directionOfDemoTasks[index] = 0; //unnecessary initialization for clarity
                 index++;
             }
 	    }
@@ -384,40 +379,42 @@ public class OrderedIncorporator extends Incorporator{
 
         /*
 	     * Not all contiguous groups merit to become a Task in the final Contiguity Tree
-         * For example, assume list1 = ABCD && list2 = ABCD
-         * Initially, list2tasks = 0 1 2 3.
+         * For example, assume group = ABCD && demo = ABCD
+         * Initially, upToDateDemoTasks = 0 1 2 3.
          * 
          * We first dynamically discover group AB. We turn that into a task OrderedGroup#5: <AB>
-         * Now, list2tasks = 5 5 2 3.
+         * Now, upToDateDemoTasks = 5 5 2 3.
          * 
          * Next, we see that BC is also a contiguous group. 
          * However, since B has already been coupled with A via Task#5, we cannot "steal" B into a new task. 
          * 
          * Next, we see that CD is also a contiguous group. 
          * Since neither C or D are in still in their own tasks, we turn that into a task OrderedGroup#6 <CD>.
-         * Now, list2tasks = 5 5 6 6.
+         * Now, upToDateDemoTasks = 5 5 6 6.
          * 
          * We find, but ignore, groups ABC and BCD since C is already coupled with D and B is coupled with A.
          * 
          * Finally, we find group ABCD. Since forming task OrderedGroup#7 <<AB><CD>> does not involve breaking apart Task#5 or #6, we proceed.
-         * Now, list2tasks = 7 7 7 7.
+         * Now, upToDateDemoTasks = 7 7 7 7.
+         * 
          * This ContiguityTree legitimately represents all of the contiguous groups. 
-         * However, when we create Task #7, the OrderedGroup is smart enough to know it should remove unnecessary children (other OrderedGroups).
+         * However, when we create Task #7, the OrderedGroup is smart enough to know it should remove unnecessary children (other groups created by this OrderIncorporator which have the same direction).
          * Thus, Task#7 = <ABCD>. Task#5 and Task #6 have been absorbed by #7, as the information they represented is encoded in Task#7.
          * 
          * The final Contiguity Tree is an Ordered Group <ABCD>.
          */
 	    public VerifiedGroupOfTasks validate (int start, int end) {
 	        //System.out.println("Validating group from: "+ start + " to " + end);
-	        ArrayList<Task> tasksInL2Order = new ArrayList<Task>();
-            ArrayList<Integer> L1IndexOfTasksInL2Order = new ArrayList<Integer>();
+	        ArrayList<Task> tasksInDemoOrder = new ArrayList<Task>();
+            ArrayList<Integer> groupIndexOfTasksInDemoOrder = new ArrayList<Integer>();
+            ArrayList<Integer> directionOfTasksInDemoOrder = new ArrayList<Integer>();
            
             /*
-             * As described above, when building a Task, we must ensure that we are not breaking up any existing tasks
-             * While we do this, we can go ahead and find out if the task is Ordered(reversible?) or Unordered
+             * As described above, when building a new Task, we must ensure that we are not breaking up any existing tasks
+             * While we do this, we can go ahead and find out if the task is Ordered(sequential or reversible) or Unordered
              * We accomplish this by tracking the tasks we would like to combine into a new task
-             *   and by tracking the index of these tasks with respect to list1
-             *   For example, if the tasks (when traversed w respect to list2) have decreasing indices with respect to list1,
+             *   We track the index of these tasks with respect to the group we are incorporating
+             *   For example, if the tasks (when traversed w respect to the demo) have decreasing indices with respect to group,
              *       then we know the tasks are in the opposite order 
              */
            
@@ -426,25 +423,26 @@ public class OrderedIncorporator extends Incorporator{
                 if (upToDateDemoTasks[start].equals(upToDateDemoTasks[start-1])) return null;
             }
             
-          //check last edge to ensure we are not breaking apart a pre-existing task
+            //check last edge to ensure we are not breaking apart a pre-existing task
             if (end < upToDateDemoTasks.length-1) {
                 if (upToDateDemoTasks[end].equals(upToDateDemoTasks[end+1])) return null;
             }
             
-            //record each subtask and their index with respect to list 1
+            //record each subtask, their direction, and their index with respect to the group
             Task currentTask = null;
             for (int k=start; k <= end; k++){
                 if ( ! upToDateDemoTasks[k].equals(currentTask)) {
                     currentTask = upToDateDemoTasks[k];
-                    tasksInL2Order.add(upToDateDemoTasks[k]);
-                    L1IndexOfTasksInL2Order.add(demoIndexedInGroup[k]);
+                    tasksInDemoOrder.add(upToDateDemoTasks[k]);
+                    groupIndexOfTasksInDemoOrder.add(demoIndexedInGroup[k]);
+                    directionOfTasksInDemoOrder.add(directionOfDemoTasks[k]);
                 }
             }
             
             //determine the GroupType based on L1IndexOfTasksInL2Order's numeric ordering
-            int direction = determineDirection(L1IndexOfTasksInL2Order);
+            int direction = determineDirection(groupIndexOfTasksInDemoOrder);
             
-            return new VerifiedGroupOfTasks(tasksInL2Order, direction, start, end);
+            return new VerifiedGroupOfTasks(tasksInDemoOrder, direction, start, end);
 	    }
 	    
 	    //return 1 if the tasks are in the same order
@@ -459,81 +457,101 @@ public class OrderedIncorporator extends Incorporator{
            return (int) Math.signum(initialDirection);
         }
 	    
-	    public void update (int start, int end, Task task) {
+        
+        //When a the builder successfully makes a task, we must update or records
+	    public void update (int start, int end, Task task, int direction) {
             for (int i=start; i<=end; i++){
                 upToDateDemoTasks[i] = task;
+                directionOfDemoTasks[i]=direction;
             }
 	    }
 	    
 	    
+	    
+	    
+	    //THESE METHODS DEAL WITH REPLACING THE DEMO WITH THE NEW TASK OR PIECES ONCE AN ENTIRE INCORPORATION IS FINISHED
+	    
 	    //The Validator is aware of what Tasks are a piece of the OrderedGroup we are incorporating.
 	    //If all pieces were combined into a single Task, relabel the Task with the same label as the OG
-	    //If there are multiple pieces left, relabel them all as peices of OG
+	    //If there are multiple pieces left, relabel them all as pieces of OG
 	    //Of course, remove the old Tasks from the demo, and insert the new ones in their place
 	    public void updateDemo (List<Task> demo, int labelId) {
 	        int numberOfResolvedPieces = numberOfResolvedPieces();
 	        System.out.print("Updating demo with number of pieces = " + numberOfResolvedPieces + " from ");
 	        if (numberOfResolvedPieces==1) updateDemoWithSingleTaskAsOG(demo, labelId);
-	        else if (numberOfResolvedPieces>1) updateDemoWithMulipleTasksAsOGPieces(demo, labelId);
+	        else if (numberOfResolvedPieces>1) updateDemoWithMuliplePiecesAsOGPieces(demo, labelId);
 	        else throw new Error ("Not a single piece was found for this OG! Tisk tisk tisk. Trying to pull a fast one on me?");
 	    }
 	    
 	    private void updateDemoWithSingleTaskAsOG (List<Task> demo, int labelId) {
-	        Integer startOfPiece = null;
-	        Integer endOfPiece = null;
-	        Task singlePiece = null;
+	        Integer startOfTask = null;
+	        Integer endOfTask = null;
+	        Task singleTask = null;
 	        
 	        for (int i=demoIndexedInGroup.length-1; i>=0; i--){
                 if (demoIndexedInGroup[i] >= 0) { //this Task was a piece of the OG
-                    if (endOfPiece == null) {
-                        endOfPiece = i;
-                        singlePiece = upToDateDemoTasks[i];
+                    if (endOfTask == null) {
+                        endOfTask = i;
+                        singleTask = upToDateDemoTasks[i];
                     }
-                    startOfPiece = i;
+                    startOfTask = i;
                 }
             }
 	        
-	        if (startOfPiece == null || endOfPiece == null || singlePiece == null) throw new Error ("Unless demoIndexedInGroup changed out from under us, this is impossible");
-	        System.out.println(startOfPiece+ " to " + endOfPiece);
+	        if (startOfTask == null || endOfTask == null || singleTask == null) throw new Error ("Unless demoIndexedInGroup changed out from under us, this is impossible");
+	        System.out.println(startOfTask+ " to " + endOfTask);
 	        //now relabel singlePiece and replace demo[startOfPiece,endOfPiece] with singlePiece
-	        singlePiece.setLabel(new Label(labelId));
-	        replaceTaskInDemo(demo, startOfPiece, endOfPiece, singlePiece);
+	        replaceTasksInDemo(demo, startOfTask, endOfTask, new Label(labelId));
 	        
-	        singlePiece.printMe(3);
+	        singleTask.printMe(3);
 	    }
 	    
-	    private void updateDemoWithMulipleTasksAsOGPieces (List<Task> demo, int labelId) {
+	    //We have to find all the subTasks and relabel them
+	    private void updateDemoWithMuliplePiecesAsOGPieces (List<Task> demo, int labelId) {
 	        Integer startOfPiece = null;
             Integer endOfPiece = null;
-            Task singlePiece = null;
             
             for (int i=demoIndexedInGroup.length-1; i>=0; i--){
                 if (demoIndexedInGroup[i] >= 0) { //this Task was a piece of the OG
-                    startOfPiece = i;
-                    if (endOfPiece == null) {
-                        endOfPiece = i;
-                        singlePiece = upToDateDemoTasks[i];
-                    }
-                    else if (singlePiece.equals(upToDateDemoTasks[i])) {
-                        
+                    //we may be a new piece, or we may have been resolved into the same Task as the lastGuy. Lets check...
+                    if (upToDateDemoTasks[i].equals(upToDateDemoTasks[i+1])) { 
+                        //we are the same piece at the last guy
+                        startOfPiece=i;
                     }
                     
+                    else { //we are our own Task/piece! 
+                        replaceTasksInDemo(demo, startOfPiece, endOfPiece, new PieceLabel(labelId, endOfPiece-startOfPiece+1) ); //commit the last piece found (nothing done if indecies are null)
+                        endOfPiece=i;
+                        startOfPiece=i;
+                    }
+                }
+                else {
+                    replaceTasksInDemo(demo, startOfPiece, endOfPiece, new PieceLabel(labelId, endOfPiece-startOfPiece+1) ); //commit the last piece found
+                    startOfPiece=null;
+                    endOfPiece=null;
                 }
             }
             
+            
 	    }
 	    
-	    private void replaceTaskInDemo (List<Task> demo, int start, int end, Task task) {
+	    private void replaceTasksInDemo (List<Task> demo, Integer start, Integer end, Label label) {
+	        if ( start==null || end ==null) return;
+	        
 	        int demoSize = demo.size();
+	        Task replacementTask = upToDateDemoTasks[start];
+	        replacementTask.setLabel(label);
+	        
 	        List<Task> startOfDemo = demo.subList(0, start);
 	        List<Task> endOfDemo = demo.subList(end+1, demoSize);
 	        List<Task> newDemo = new ArrayList<Task>(demoSize-end+start-1); 
 	        newDemo.addAll(startOfDemo);
-	        newDemo.add(task);
+	        newDemo.add(replacementTask);
 	        newDemo.addAll(endOfDemo);
 	        
 	        demo.clear();
 	        demo.addAll(newDemo);
+	        
 	    }
 	    
 	    //Into how many tasks have the pieces of the OG been reduced to?
@@ -541,23 +559,13 @@ public class OrderedIncorporator extends Incorporator{
 	    //upToDateDemoTasks helps us know if they pieces were reduced together or stayed separate
         private int numberOfResolvedPieces () {
             int numberOfResolvedPieces = 0;
-            boolean lastGuyWasAPiece = false;
             
             for (int i=demoIndexedInGroup.length-1; i>=0; i--){
                 if (demoIndexedInGroup[i] >= 0) { //this Task was a piece of the OG
-                    if (lastGuyWasAPiece) {
-                        //we may be a new piece, or we may have been resolved into the same Task as the lastGuy. Lets check...
-                        if ( ! upToDateDemoTasks[i].equals(upToDateDemoTasks[i+1])) {
-                            numberOfResolvedPieces++; //we are our own Task/piece!
-                        }
+                    //we may be a new piece, or we may have been resolved into the same Task as the lastGuy. Lets check...
+                    if ( ! upToDateDemoTasks[i].equals(upToDateDemoTasks[i+1])) {
+                        numberOfResolvedPieces++; //we are our own Task/piece!
                     }
-                    else {
-                        numberOfResolvedPieces++; //we just found a new piece!
-                    }
-                    lastGuyWasAPiece = true;
-                }
-                else {
-                    lastGuyWasAPiece = false;
                 }
             }
             
@@ -616,18 +624,11 @@ public class OrderedIncorporator extends Incorporator{
      */
 	
     private abstract class GroupBuilder {
-        protected int[] directionOfTasks;
-        public GroupBuilder (int demoLength) {
-            directionOfTasks = new int[demoLength]; //default values of 0 so original Tasks will never be absorbed
-        }
+        
+        public GroupBuilder (int demoLength) {}
         
         abstract public Task buildTask (VerifiedGroupOfTasks verifiedGroup, int numberOfPeices);
         
-        protected void setDirection (int start, int end, int direction) {
-            for (int i=start; i<=end; i++){
-                directionOfTasks[i]=direction;
-            }
-        }
     }
    
 	
@@ -663,10 +664,10 @@ public class OrderedIncorporator extends Incorporator{
 		    }
 		    else {
     		    if (direction==1){ //increasing task indices. ex: 3, 4, 7, 11
-    		        task = new OrderedGroup(new Label(), null, tasks, false, directionOfTasks, startIndex, direction); //false bc task order is not reversible
+    		        task = new OrderedGroup(new Label(), null, tasks, false, directionOfDemoTasks, startIndex, direction); //false bc task order is not reversible
     		    }
     		    else if (direction==-1){  //decreasing task indices. ex: 11, 7, 4, 3
-    		        task = new OrderedGroup(new Label(), null, verifiedGroup.tasks, true, directionOfTasks, startIndex, direction); //true bc task order is reversible
+    		        task = new OrderedGroup(new Label(), null, verifiedGroup.tasks, true, directionOfDemoTasks, startIndex, direction); //true bc task order is reversible
     		    }
     		    else if (direction==0){  //fluctuating task indices. ex: 11, 4, 7, 3
     		        task = new UnOrderedGroup(new Label(), null, verifiedGroup.tasks);
@@ -707,10 +708,10 @@ public class OrderedIncorporator extends Incorporator{
             }
             else {
                 if (direction==1){ //increasing task indices. ex: 3, 4, 7, 11
-                    task = new OrderedGroup(new Label(), null, tasks, true, directionOfTasks, startIndex, direction); //true bc task order is reversible
+                    task = new OrderedGroup(new Label(), null, tasks, true, directionOfDemoTasks, startIndex, direction); //true bc task order is reversible
                 }
                 else if (direction==-1){  //decreasing task indices. ex: 11, 7, 4, 3
-                    task = new OrderedGroup(new Label(), null, verifiedGroup.tasks, true, directionOfTasks, startIndex, direction); //true bc task order is reversible
+                    task = new OrderedGroup(new Label(), null, verifiedGroup.tasks, true, directionOfDemoTasks, startIndex, direction); //true bc task order is reversible
                 }
                 else if (direction==0){  //fluctuating task indices. ex: 11, 4, 7, 3
                     task = new UnOrderedGroup(new Label(), null, verifiedGroup.tasks);

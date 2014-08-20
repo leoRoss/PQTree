@@ -38,7 +38,7 @@ public class Label {
 	
 	
 	
-	public int getNumberOfBrothers () {
+	public int getBrotherhoodSize () {
 		return 1;
 	}
 
