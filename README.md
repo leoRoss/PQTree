@@ -1,4 +1,34 @@
-ContiguityTree
-==============
+#ContiguityTree
 
-A Contiguity Tree is a nested structure of contiguous groups of Objects. It takes in various demonstrations (a permutation of a list of unique Objects). It implicitly tracks all subgroups of these Objects which have been contiguous in all previous demonstrations. The tree structure allows for the Objects to be easily traversed in a manner that respects these groupings. ContiguityTree has been supplemented to also respect preconditions between Objects.
+
+##Input
+
+A Contiguity Tree (CT) takes as input demonstrations, one at a time.
+
+Demonstation: a sequence of unique actions (Objects).
+
+Limitation: all of the demonstrations must include the same set objects
+
+
+
+##Result
+
+A Contiguity Tree keeps track of all the groups of Objects (or groups of groups of Objects) which always appear contiguously in the demos
+
+EX:
+      
+      Demo 1 = A B C D E
+      
+      Demo 2 = E B A C D
+      
+      The CT knows that so far...
+      
+            A and B are always contiguous (next to each other), but can be in any order: {AB}
+      
+            C and D always appear in the same order: [CD]
+      
+            Moreover, {AB} and [CD] always appear in the same order: [ {AB}[CD] ]
+      
+            Finally, [ {AB}[CD] ] and E are always contiguous: {  [ {AB}[CD] ]  E  }
+
+Visit my [website](http://www.lrossignacmilon.com/projects/ContiguityTree/main.php) for further explanation and examples.
