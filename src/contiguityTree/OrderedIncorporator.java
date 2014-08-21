@@ -481,75 +481,55 @@ public class OrderedIncorporator extends Incorporator{
 	    //If there are multiple pieces left, relabel them all as pieces of OG
 	    //Of course, remove the old Tasks from the demo, and insert the new ones in their place
 	    public void updateDemo (List<Task> demo, int labelId) {
-	        int numberOfResolvedPieces = numberOfResolvedPieces();
-	        System.out.print("Updating demo with number of pieces = " + numberOfResolvedPieces + " from ");
-	        if (numberOfResolvedPieces==1) updateDemoWithSingleTaskAsOG(demo, labelId);
-	        else if (numberOfResolvedPieces>1) updateDemoWithMuliplePiecesAsOGPieces(demo, labelId);
-	        else throw new Error ("Not a single piece was found for this OG! Tisk tisk tisk. Trying to pull a fast one on me?");
-	    }
-	    
-	    private void updateDemoWithSingleTaskAsOG (List<Task> demo, int labelId) {
-	        Integer startOfTask = null;
-	        Integer endOfTask = null;
-	        Task singleTask = null;
-	        
-	        int length = demoIndexedInGroup.length;
-            
-            for (int i=0; i<length; i++){
-                if (demoIndexedInGroup[i] >= 0) { //this Task was a piece of the OG
-                    if (startOfTask == null) {
-                        startOfTask = i;
-                        singleTask = upToDateDemoTasks[i];
-                    }
-                    endOfTask = i;
-                }
-            }
-	        
-	        if (startOfTask == null || endOfTask == null || singleTask == null) throw new Error ("Unless demoIndexedInGroup changed out from under us, this is impossible");
-	        System.out.println(startOfTask+ " to " + endOfTask);
-	        //now relabel singlePiece and replace demo[startOfPiece,endOfPiece] with singlePiece
-	        replaceTasksInDemo(demo, startOfTask, endOfTask, new Label(labelId));
-	        
-	        singleTask.printMe(3);
-	    }
-	    
-	    //We have to find all the subTasks and relabel them
-	    private void updateDemoWithMuliplePiecesAsOGPieces (List<Task> demo, int labelId) {
+	        List<Task> tasksFromOG = new LinkedList<Task>();
 	        Integer startOfPiece = null;
             Integer endOfPiece = null;
             
             int length = demoIndexedInGroup.length;
             
-            for (int i=0; i<length; i++){
-                if (demoIndexedInGroup[i] >= 0) { //this Task was a piece of the OG
-                    //we may be a new piece, or we may have been resolved into the same Task as the lastGuy. Lets check...
-                    if (i!=0 && upToDateDemoTasks[i].equals(upToDateDemoTasks[i-1])) { 
-                        //we are the same piece at the last guy
-                        endOfPiece=i;
+            //go from end to start, so that replacing part of the demo with a single task does not affect the rest of the loop!
+            for (int i=length-1; i>=0; i--){
+                if (demoIndexedInGroup[i] >= 0) { //this Task was a piece of the OG...
+                    
+                    if (i!=length-1 && upToDateDemoTasks[i].equals(upToDateDemoTasks[i+1])) { 
+                        //we are part of the same task as the last index we checked
+                        startOfPiece=i;
+                        if (i==0) {replaceTasksInDemo(demo, startOfPiece, endOfPiece);}
                     }
                     
-                    else { //we are our own Task/piece! 
-                        replaceTasksInDemo(demo, startOfPiece, endOfPiece, new PieceLabel(labelId, endOfPiece-startOfPiece+1) ); //commit the last piece found (nothing done if indecies are null)
-                        startOfPiece=i;
+                    else { 
+                        //we are a newly found task 
+                        tasksFromOG.add(upToDateDemoTasks[i]);
+                        replaceTasksInDemo(demo, startOfPiece, endOfPiece); //commit the last piece found (nothing done if indices are null)
                         endOfPiece=i;
+                        startOfPiece=i; 
                     }
                 }
                 else {
-                    replaceTasksInDemo(demo, startOfPiece, endOfPiece, new PieceLabel(labelId, endOfPiece-startOfPiece+1) ); //commit the last piece found
+                    replaceTasksInDemo(demo, startOfPiece, endOfPiece); //commit the last piece found (nothing done if indices are null)
                     startOfPiece=null;
                     endOfPiece=null;
                 }
             }
             
+            //now, we have removed all the task that are a part of the OG from the demo
+            //we have replaced them with their new tasks, which are not correctly labeled, so let get to it...
+            Label cookieCutLabel;
+            int numberOfPieces = tasksFromOG.size();
+            if (numberOfPieces==1) {cookieCutLabel = new Label(labelId);}
+            else if (numberOfPieces>1 ) {cookieCutLabel = new PieceLabel(labelId, numberOfPieces);}  //numberOfPieces is the size of the brotherhood
+            else {throw new Error ("No parts of the Ordered Group were found while incorporating!");}
             
+            for (Task piece : tasksFromOG) {
+                piece.setLabel(cookieCutLabel.copyLabel());
+            }
 	    }
 	    
-	    private void replaceTasksInDemo (List<Task> demo, Integer start, Integer end, Label label) {
+	    private void replaceTasksInDemo (List<Task> demo, Integer start, Integer end) {
 	        if ( start==null || end ==null) return;
 	        
 	        int demoSize = demo.size();
 	        Task replacementTask = upToDateDemoTasks[start];
-	        replacementTask.setLabel(label);
 	        
 	        List<Task> startOfDemo = demo.subList(0, start);
 	        List<Task> endOfDemo = demo.subList(end+1, demoSize);
@@ -562,23 +542,6 @@ public class OrderedIncorporator extends Incorporator{
 	        demo.addAll(newDemo);
 	        
 	    }
-	    
-	    //Into how many pieces has the OG been reduced to?
-        private int numberOfResolvedPieces () {
-            int numberOfResolvedPieces = 0;
-            int length = demoIndexedInGroup.length;
-            
-            for (int i=0; i<length; i++){
-                if (demoIndexedInGroup[i] >= 0) { //this Task was a piece of the OG
-                    //we may be a new piece, or we may have been resolved into the same Task as the lastGuy. Lets check...
-                    if ( i==0 || !upToDateDemoTasks[i].equals(upToDateDemoTasks[i-1])) {
-                        numberOfResolvedPieces++; //we are our own Task/piece!
-                    }
-                }
-            }
-            
-            return numberOfResolvedPieces;
-        }
 	    
 	}
 	
