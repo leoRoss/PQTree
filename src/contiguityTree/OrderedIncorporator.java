@@ -27,9 +27,9 @@ import java.util.HashSet;
 
 
 public class OrderedIncorporator extends Incorporator{
-    ContiguousGroupFinder finder;
-    Validator validator;
-    GroupBuilder builder;
+    private ContiguousGroupFinder finder;
+    private Validator validator;
+    private GroupBuilder builder;
     
     public OrderedIncorporator (OrderedGroup orderedGroupToIncorporateIntoDemo, List<Task> partiallyIncorporatedDemo) {
         demo = partiallyIncorporatedDemo;
@@ -210,7 +210,7 @@ public class OrderedIncorporator extends Incorporator{
 	
 	private class ContiguousGroupFinder {
 	    private PieceIndexTracker[][] books;
-	    int i,j;
+	    private int i,j;
 	    
 	    public ContiguousGroupFinder (OrderedGroup group, List<Task> demo) {
 	        int demoSize = demo.size();
@@ -625,7 +625,6 @@ public class OrderedIncorporator extends Incorporator{
 		        task = new UnOrderedGroup(new Label(), null, verifiedGroup.tasks);
 		    }
 		    
-		    //TODO NEXT: make sure OrderGroup builder removes piece labels. change, add subTaskDirection to verifiedGroup obj
 		    else {
     		    if (direction==1){ //increasing task indices. ex: 3, 4, 7, 11
     		        task = new OrderedGroup(new Label(), null, tasks, false, subTaskDirections, direction); //false bc task order is not reversible
@@ -703,9 +702,9 @@ public class OrderedIncorporator extends Incorporator{
      */
 	
 	private class VerifiedGroupOfTasks {
-	    List<Task> tasks;
-	    List<Integer> subTaskDirections;
-	    int direction;
+	    private List<Task> tasks;
+	    private List<Integer> subTaskDirections;
+	    private int direction;
 	    
 	    public VerifiedGroupOfTasks ( List<Task> tasksToBeGrouped, int dir, List<Integer> subTaskDirs) {
 	        tasks = tasksToBeGrouped;

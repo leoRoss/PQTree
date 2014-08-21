@@ -1,6 +1,11 @@
 package contiguityTree;
 
 //Labels are used to track Nodes
+
+//A PieceLabel will only ever be equal to another PieceLabel (same id)
+//A normal Label will only ever be equal to another Label (same id)
+//PieceLabels are only ever hashed with other PieceLabels, same for normal Labels
+//Thus hash is simply the id (perfect distribution)
 public class Label {
 	private static int next_available_id = 0;
 	protected int id;
@@ -42,6 +47,7 @@ public class Label {
 		return 1;
 	}
 
+	//Labels are equal as long as they have the same id and are not a PieceLabel
 	public boolean equals(Object obj) {
 		if (obj == this) return true;
         if (obj == null) return false;

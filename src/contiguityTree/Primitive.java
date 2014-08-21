@@ -4,14 +4,10 @@ import java.util.List;
 
 public class Primitive extends Task {
 	protected Object object;
-
-	public Primitive (Label label, Task parent, Object obj) {
-		super(label, parent, 1);
-		object = obj;
-	}
 	
 	public Primitive (Object obj) {
-		this(new Label(), null, obj);
+		super(new Label(), null, 1);
+		object=obj;
 	}
 	
 	//All we have to do is correctly label versions of ourselves in the demo

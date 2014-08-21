@@ -21,12 +21,13 @@ public class PieceLabel extends Label {
 		return brotherhoodSize;
 	}
 
+	//Piece Labels are only ever hashed against other piece labels, thus we have a perfect hash distribution
 	@Override
 	public int hashCode() {
-		final int prime = 31;
-		return prime * super.hashCode();
+		return super.hashCode();
 	}
 	
+	//Peice labels are equal as long as they are part of the same brotherhood (same id and are both peice labels)
 	public boolean equals(Object obj) {
 		if (obj == this) return true;
         if (obj == null) return false;

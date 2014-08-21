@@ -20,9 +20,10 @@ public abstract class Group extends Task {
 	
 	//INCORPORATION METHODS
 	public void incorporate (List<Task> demo) {
-		//Let my subTasks try to encorporate themselves in the demo
+		//Let my subTasks try to incorporate themselves in the demo
 		encorporateChildren(demo);
 		//At this point, each of my subTasks is either in the demo or all of its pieces are in the demo
+		
 		System.out.println();
 		System.out.println();
 		System.out.println("Incorporating:");
@@ -62,7 +63,7 @@ public abstract class Group extends Task {
 	    System.out.print(name() + ": " + label + " {");
 	    printPreconditions();
 	    System.out.println();
-	    for (Task subTask : getSubTasks()){
+	    for (Task subTask : getPrintSubTasks()){
 	    	subTask.printMe(depth+1);
 		}
 	    printSpace(depth);
@@ -88,7 +89,7 @@ public abstract class Group extends Task {
     protected abstract boolean sameType (Task task);
     public abstract boolean isOrdered ();
     public abstract boolean isReversible ();
-    protected abstract Collection<Task> getSubTasks ();
+    protected abstract Collection<Task> getPrintSubTasks ();
 	    
 	    
 	

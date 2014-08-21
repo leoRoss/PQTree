@@ -18,9 +18,9 @@ public class OrderedGroup extends Group {
         reversible = rev;
 	}
 	
-	public OrderedGroup (Label label, Task parent,  List <Task> col, boolean rev) {
-		this(label, parent, col.size(), rev);
-		addListToSubTasks(col);
+	public OrderedGroup (Label label, Task parent,  List <Task> subTasksToAdd, boolean rev) {
+		this(label, parent, subTasksToAdd.size(), rev);
+		addListToSubTasks(subTasksToAdd);
 	}
     
 	
@@ -100,7 +100,7 @@ public class OrderedGroup extends Group {
         return -1;
     }
     
-    protected Collection<Task> getSubTasks (){
+    protected Collection<Task> getPrintSubTasks (){
         return getOrderedSubTasks();
     }
 	
