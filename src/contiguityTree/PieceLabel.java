@@ -27,15 +27,6 @@ public class PieceLabel extends Label {
 		return super.hashCode();
 	}
 	
-	//Peice labels are equal as long as they are part of the same brotherhood (same id and are both peice labels)
-	public boolean equals(Object obj) {
-		if (obj == this) return true;
-        if (obj == null) return false;
-        if (!(obj instanceof PieceLabel)) return false;
-        PieceLabel pieceLabel = (PieceLabel) obj;
-		return id == pieceLabel.id;
-	}
-	
 	public Label copyLabel() {
         PieceLabel copy = new PieceLabel(id, brotherhoodSize);
         return copy;

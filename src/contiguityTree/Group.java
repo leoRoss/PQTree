@@ -31,7 +31,7 @@ public abstract class Group extends Task {
         System.out.println("Into Demo:");
         printTaskList(demo);
         System.out.println();
-        printTaskListLabels(demo);
+        //printTaskListLabels(demo);
 		createNewIncorporator(demo);
 		
 		incorporator.incorporate();

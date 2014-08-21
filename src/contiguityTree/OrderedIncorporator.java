@@ -46,8 +46,6 @@ public class OrderedIncorporator extends Incorporator{
 
     public void incorporate () {
         int [] contiguousCandidate = finder.nextGroup(); 
-        int numberOfGroupsMade = 0;
-        int numberOfPrimitivesInGroupsMade = 0;
         while (contiguousCandidate!=null) {
             System.out.println("Candidate: ["+contiguousCandidate[0] +" - "+ contiguousCandidate[1] + "](" + contiguousCandidate[2] +")");
             
@@ -56,8 +54,6 @@ public class OrderedIncorporator extends Incorporator{
             if (verifiedGroup != null) {
                 System.out.println("    Verified");
                 Task task = builder.buildTask(verifiedGroup, contiguousCandidate[2]);
-                numberOfGroupsMade++;
-                numberOfPrimitivesInGroupsMade+= task.absoluteSize();
                 System.out.println("    Made Task:");
                 task.printMe(2);
                 System.out.println();
@@ -68,7 +64,7 @@ public class OrderedIncorporator extends Incorporator{
             contiguousCandidate = finder.nextGroup(); 
         }
         
-        System.out.println("Made " + numberOfGroupsMade + " new tasks during incorporation" + " for a total Primitive count of " + numberOfPrimitivesInGroupsMade);
+        //System.out.println("Made " + numberOfGroupsMade + " new tasks during incorporation" + " for a total Primitive count of " + numberOfPrimitivesInGroupsMade);
         validator.updateDemo(demo, group.getLabel().getId() );
         
     }
@@ -219,9 +215,9 @@ public class OrderedIncorporator extends Incorporator{
 	        int index=0;
             for (Task demoTask : demo){
                 books[0][index++] = new PieceIndexTracker(group, demoTask, demoSize);
-                System.out.print("| " + books[0][index-1].minIndex + "," + books[0][index-1].maxIndex);
+                //System.out.print("| " + books[0][index-1].minIndex + "," + books[0][index-1].maxIndex);
             }
-            System.out.println();
+            //System.out.println();
 	    }
 	    
 	    //This function dynamically builds books until it finds a candidate, which it returns
@@ -483,6 +479,7 @@ public class OrderedIncorporator extends Incorporator{
             for (int i=length-1; i>=0; i--){
                 if (demoIndexedInGroup[i] >= 0) { //this Task was a piece of the OG...
                     
+                    //TODO! Error right here, two unresolved pieces deserve to be their own pieces
                     if (i!=length-1 && upToDateDemoTasks[i].equals(upToDateDemoTasks[i+1])) { 
                         //we are part of the same task as the last index we checked
                         startOfPiece=i;
@@ -506,6 +503,8 @@ public class OrderedIncorporator extends Incorporator{
             
             //now, we have removed all the task that are a part of the OG from the demo
             //we have replaced them with their new tasks, which are not correctly labeled, so let get to it...
+            System.out.println("    Found these Tasks in the OG:");
+            printTaskList(tasksFromOG);
             Label cookieCutLabel;
             int numberOfPieces = tasksFromOG.size();
             if (numberOfPieces==1) {cookieCutLabel = new Label(labelId);}
@@ -533,6 +532,14 @@ public class OrderedIncorporator extends Incorporator{
 	        demo.clear();
 	        demo.addAll(newDemo);
 	        
+	    }
+	    
+	    
+	    private void printTaskList(List<Task> demo){
+	        for (Task task : demo) {
+	            task.printMe(4);
+	        }
+	        System.out.println();
 	    }
 	    
 	}
