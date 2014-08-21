@@ -37,7 +37,7 @@ public class OrderedIncorporator extends Incorporator{
         int demoSize = demo.size();
         if (demoSize<group.getSize()) throw new Error("The demo can not have less tasks than the group does");
         
-        finder = new ContiguousGroupFinder( ((OrderedGroup)group).getOrderedSubTasks(), demo);
+        finder = new ContiguousGroupFinder( (OrderedGroup)group, demo);
         int [] indexOfDemoTasksInGroup = finder.indexOfDemoTasksInGroup();
         validator = new Validator(demo, indexOfDemoTasksInGroup);
         if (group.isReversible()) { builder = new GroupBuilderFromReversible(demoSize); }
@@ -212,13 +212,13 @@ public class OrderedIncorporator extends Incorporator{
 	    private PieceIndexTracker[][] books;
 	    int i,j;
 	    
-	    public ContiguousGroupFinder (List<Task> orderedGroupSubTasks, List<Task> demo) {
+	    public ContiguousGroupFinder (OrderedGroup group, List<Task> demo) {
 	        int demoSize = demo.size();
 	        i=1; j=-1;
 	        books = new PieceIndexTracker [demoSize][demoSize];
 	        int index=0;
             for (Task demoTask : demo){
-                books[0][index++] = new PieceIndexTracker(orderedGroupSubTasks, demoTask, demoSize);
+                books[0][index++] = new PieceIndexTracker(group, demoTask, demoSize);
                 System.out.print("| " + books[0][index-1].minIndex + "," + books[0][index-1].maxIndex);
             }
             System.out.println();
@@ -261,14 +261,15 @@ public class OrderedIncorporator extends Incorporator{
     		protected int numberOfBrotherhoods;
     		protected int numberOfDemoTasksTracked; //= i+1 in books[i][j] ie: size of demo(j..j+i)
     		
-    		public PieceIndexTracker (List<Task> subTasks, Task task, int demoSize) {
+    		public PieceIndexTracker (OrderedGroup group, Task task, int demoSize) {
     			myPieces = new HashSet<Task> ();
                 desiredNumberOfPieces=0;
                 numberOfBrotherhoods=0;
                 numberOfDemoTasksTracked = 1;
                 
-                
-                int indexInGroup = lenientIndexOfSubTask(subTasks, task);
+                int indexInGroup;
+                if (group.contains(task)) {indexInGroup = group.lenientIndexOfSubTask(task); }
+                else {indexInGroup = -1;}
                 
     			if (indexInGroup==-1) { //the task does not exist in this group
     			    minIndex = -demoSize*100;
@@ -330,15 +331,6 @@ public class OrderedIncorporator extends Incorporator{
     		
     		public int numberOfPeices() {
                 return desiredNumberOfPieces;
-            }
-    		
-    		private int lenientIndexOfSubTask (List<Task> subTasks, Task task) {
-                int index=0;
-                for (Task subTask : subTasks) {
-                    if (subTask.lenientEquals(task)) return index;
-                    index++;
-                }
-                return -1;
             }
     	}
 	

@@ -91,8 +91,17 @@ public class OrderedGroup extends Group {
 		return orderedSubTasks.get(index); 
 	}
 	
-	protected Collection<Task> getSubTasks (){
-	    return getOrderedSubTasks();
-	}
+    public int lenientIndexOfSubTask (Task task) {
+        int index=0;
+        for (Task subTask : orderedSubTasks) {
+            if (subTask.lenientEquals(task)) return index;
+            index++;
+        }
+        return -1;
+    }
+    
+    protected Collection<Task> getSubTasks (){
+        return getOrderedSubTasks();
+    }
 	
 }
