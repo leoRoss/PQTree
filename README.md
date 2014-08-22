@@ -37,4 +37,4 @@ Visit my [website](http://www.lrossignacmilon.com/projects/ContiguityTree/main.p
 
 
 Interested in the implementation?
-Starting by reading my webpage above, then read ContiguityTree.java, glace at Group.java, read UnorderedIncorporator.java and finally read OrderedIncorporator.java (the most complex process)
+Starting by reading my webpage above, then read ContiguityTree.java, glance at Group.java, read UnorderedIncorporator.java and finally read OrderedIncorporator.java (the most complex process)
