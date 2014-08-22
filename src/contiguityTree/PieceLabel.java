@@ -11,18 +11,6 @@ public class PieceLabel extends Label {
 		uuid=id;
 	}
 	
-	public String toString () {
-		return id + "("+uuid+"/"+brotherhoodSize+")";
-	}
-	
-	public boolean isPiece () {
-		return true;
-	}
-	
-	public int getBrotherhoodSize () {
-		return brotherhoodSize;
-	}
-	
 	//PieceLabels are strictequal as long as they have the same id and uuid and are both PieceLabels
     public boolean strictEquals(Object obj) {
         if (obj == this) return true;
@@ -36,4 +24,8 @@ public class PieceLabel extends Label {
         PieceLabel copy = new PieceLabel(id, brotherhoodSize, uuid);
         return copy;
     }
+	
+	public String toString () { return id + "("+uuid+"/"+brotherhoodSize+")"; }
+    public boolean isPiece () { return true; }
+    public int getBrotherhoodSize () { return brotherhoodSize; }
 }

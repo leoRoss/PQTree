@@ -9,6 +9,9 @@ import java.util.Set;
 //Unordered groups can be scrambled
 
 public abstract class Group extends Task {
+    
+    private final boolean DEBUGGING = false;
+    
     protected Set<Task> subTasks;
     protected Incorporator incorporator;
 
@@ -19,30 +22,25 @@ public abstract class Group extends Task {
 
     // INCORPORATION METHODS
     public void incorporate(List<Task> demo) {
-        // Let my subTasks try to incorporate themselves in the demo
-        encorporateChildren(demo);
-        // At this point, each of my subTasks is either in the demo or all of
-        // its pieces are in the demo
+        // Let my subTasks try to incorporate themselves in the demo.
+        incorporateChildren(demo);
+        // At this point, each of my subTasks is either:
+        //      has a single equivalent task with the same Label in the demo
+        //      or has several equivalent task with PieceLabels in the demo
+        
+        if (DEBUGGING) { System.out.println(); System.out.println(); System.out.println("Incorporating:"); printMe(4); System.out.println("Into Demo:"); printTaskList(demo); System.out.println();  }
 
-        System.out.println();
-        System.out.println();
-        System.out.println("Incorporating:");
-        printMe(4);
-        System.out.println("Into Demo:");
-        printTaskList(demo);
-        System.out.println();
-        // printTaskListLabels(demo);
-        createNewIncorporator(demo);
-
+        createNewIncorporator(demo); //instantiate the appropriate type of incorporator
         incorporator.incorporate();
-
     }
 
-    public abstract void encorporateChildren(List<Task> demo);
+    public abstract void incorporateChildren(List<Task> demo);
 
     public abstract void createNewIncorporator(List<Task> demo);
 
+    
     // ILLEGAL FOR A SUBTASK TO HAVE A PIECE LABEL!
+    // Thus, we relabel tasks with PieceLabels
     protected void addTaskSafe(Task task) {
         if (task.isPiece()) {
             task.setLabel(new Label());
@@ -53,11 +51,33 @@ public abstract class Group extends Task {
 
     protected abstract void addTask(Task task);
 
+    
     // Will return true even if Task is a Piece
-    public boolean contains(Task task) {
+    public boolean contains(Task task) { 
         return subTasks.contains(task);
     }
 
+
+    
+    protected Collection<Task> getSetSubTasks() {
+        return subTasks;
+    }
+    
+    //How many primitive tasks are below this group?
+    public int absoluteSize() {
+        int sum = 0;
+        for (Task subTask : subTasks) {
+            sum += subTask.absoluteSize();
+        }
+        return sum;
+    }
+
+    //Is this group the same type (unordered, sequential, or reversible) as the Task passed in?
+    protected abstract boolean sameType(Task task);
+
+    public abstract boolean isOrdered();
+    public abstract boolean isReversible();
+    
     // PRINTING
     public void printMe(int depth) {
         printSpace(depth);
@@ -70,30 +90,11 @@ public abstract class Group extends Task {
         printSpace(depth);
         System.out.println("}");
     }
-
-    // GETTERS
-    protected Collection<Task> getSetSubTasks() {
-        return subTasks;
-    }
-
-    public int absoluteSize() {
-        int sum = 0;
-        for (Task subTask : subTasks) {
-            sum += subTask.absoluteSize();
-        }
-        return sum;
-    }
-
+    
     protected abstract String name();
-
-    protected abstract boolean sameType(Task task);
-
-    public abstract boolean isOrdered();
-
-    public abstract boolean isReversible();
-
     protected abstract Collection<Task> getPrintSubTasks();
-
+    
+    
     // DEBUGGING ONLY
     private void printTaskList(List<Task> demo) {
         for (Task task : demo) {

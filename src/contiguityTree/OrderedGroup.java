@@ -57,42 +57,17 @@ public class OrderedGroup extends Group {
 	
 	
 	//INCORPORATION METHODS
-    public void encorporateChildren (List<Task>demo){
+    public void incorporateChildren (List<Task>demo){
         for (Task subTask : orderedSubTasks) {
             subTask.incorporate(demo);
         }
     }
     
-    public void createNewIncorporator(List<Task> demo) {
-        incorporator = new OrderedIncorporator(this, demo);
-    }
+    public void createNewIncorporator(List<Task> demo) { incorporator = new OrderedIncorporator(this, demo);}
     
-
     
-	
-	protected boolean sameType (Task task) {
-		if (task instanceof OrderedGroup){
-			if ( ((OrderedGroup)task).isReversible() == reversible ) return true;
-		}
-		return false;
-	}
-	
-	protected String name () {
-		if (reversible) return "Reversible";
-		return "Sequential";
-	}
-	
-	public boolean isOrdered () {return true;}
-	public boolean isReversible () {return reversible;}
-	
-	protected List<Task> getOrderedSubTasks (){return orderedSubTasks;}
-	
-	public Task getSubTask (int index) {
-		return orderedSubTasks.get(index); 
-	}
-	
-	//lenientIndex will return the index of the subTask even if a Piece is passed in
-    public int lenientIndexOfSubTask (Task task) {
+    //INTERFACE WITH ORDERED SUBTASKS
+    public int lenientIndexOfSubTask (Task task) { //return the index of the equal subTask even if task has a PieceLabel 
         int index=0;
         for (Task subTask : orderedSubTasks) {
             if (subTask.equals(task)) return index;
@@ -101,8 +76,24 @@ public class OrderedGroup extends Group {
         return -1;
     }
     
-    protected Collection<Task> getPrintSubTasks (){
-        return getOrderedSubTasks();
+    public Task getSubTask (int index) { return orderedSubTasks.get(index); }
+    protected List<Task> getOrderedSubTasks (){return orderedSubTasks;}
+    
+	
+    //GENERAL GROUP METHODS - DOCUMENTED IN GROUP CLASS
+	protected boolean sameType (Task task) {
+		if (task instanceof OrderedGroup){
+			if ( ((OrderedGroup)task).isReversible() == reversible ) return true;
+		}
+		return false;
+	}
+	
+	public boolean isOrdered () {return true;}
+	public boolean isReversible () {return reversible;}
+    protected Collection<Task> getPrintSubTasks (){ return getOrderedSubTasks();}
+    protected String name () {
+        if (reversible) return "Reversible";
+        return "Sequential";
     }
 	
 }

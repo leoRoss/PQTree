@@ -30,12 +30,12 @@ public class UnOrderedIncorporator extends Incorporator {
 
     public void incorporate() {
 
-        // instead of finding subTasks in the demo, lets try and find the demo
-        // tasks into the group
-        // this lets us leverage the demo.contains method with O(1)
-        // O(demo.length) or O(3*demo.length).... who cares lets just make this
-        // code readable!
-
+        /* 
+        * Instead of finding subTasks in the demo, lets try and find the demo tasks into the group.
+        * This lets us leverage the demo.contains method with O(1)
+        * O(demo.length) or O(3*demo.length).... who cares lets just make this code readable!
+        */
+        
         if (allGroupSubTasksAreContiguous())
             replaceSingleChunkOfGroupSubTasks();
         else

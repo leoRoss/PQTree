@@ -8,10 +8,11 @@ import java.util.HashSet;
 /*
  * RULES FOR THE PROGRAMMER:
  *  - Never change the labels of Tasks in the old Contiguity Tree
- *      - Only Tasks in the demo which have PieceLabels ever need to be relabeled (right BEFORE they are resolved)
- *          -A new group can never contain piecesLabels for hashing reasons
+ *  - A new group can never contain a Task with a PiecesLabel for hashing reasons
+ *      - These tasks must be relabeled before they are added to a new group
  *  - Two Tasks are equal as long as they have equal Labels
- *      - Labels are equal as long as they have the same id (and the same brotherUUID if PieceLabel)
+ *      - Labels are equal as long as they have the same id
+ *      - This is needed so that group.contains(Task T with a PieceLabel) will return true if T as if T has a normal Label
  */
 
 
@@ -21,15 +22,13 @@ import java.util.HashSet;
  * Reading the comments top down should give you a thorough understanding of the process of incorporating a OrderedGroup into the demo
  */
 
-
-
-
-
-
 public class OrderedIncorporator extends Incorporator{
-    private ContiguousGroupFinder finder;
-    private Validator validator;
-    private GroupBuilder builder;
+    
+    private final boolean DEBUGGING = false;
+    
+    private ContiguousGroupFinder finder; //find contiguous groups - candidates to become nodes in the new tree
+    private Validator validator; //validate these groups using the index
+    private GroupBuilder builder; //build nodes in the new tree
     
     public OrderedIncorporator (OrderedGroup orderedGroupToIncorporateIntoDemo, List<Task> partiallyIncorporatedDemo) {
         demo = partiallyIncorporatedDemo;
@@ -43,30 +42,22 @@ public class OrderedIncorporator extends Incorporator{
         if (group.isReversible()) { builder = new GroupBuilderFromReversible(demoSize); }
         else { builder = new GroupBuilderFromNonReversible(demoSize); }
     }
-
+    
+    
     public void incorporate () {
-        int [] contiguousCandidate = finder.nextGroup(); 
-        while (contiguousCandidate!=null) {
-            System.out.println("Candidate: ["+contiguousCandidate[0] +" - "+ contiguousCandidate[1] + "](" + contiguousCandidate[2] +")");
-            
-            
+        int [] contiguousCandidate = finder.nextGroup();   // [start index in demo, end index in demo, number of tasks with PieceLabels in the group]
+        
+        while (contiguousCandidate!=null) { //while the finder continues to find contiguous groups   
             VerifiedGroupOfTasks verifiedGroup = validator.validate(contiguousCandidate[0], contiguousCandidate[1]);
-            if (verifiedGroup != null) {
-                System.out.println("    Verified");
-                Task task = builder.buildTask(verifiedGroup, contiguousCandidate[2]);
-                System.out.println("    Made Task:");
-                task.printMe(2);
-                System.out.println();
-                System.out.println();
-                
-                validator.update(contiguousCandidate[0], contiguousCandidate[1], task, verifiedGroup.direction);
+            if (verifiedGroup != null) { //if the indices were validated
+                Task task = builder.buildTask(verifiedGroup, contiguousCandidate[2]); //build the task from the indices in the demo
+                if (DEBUGGING) {System.out.println("    Made Task:"); task.printMe(2); System.out.println(); System.out.println();}
+                validator.update(contiguousCandidate[0], contiguousCandidate[1], task, verifiedGroup.direction); //update our books for the validator with the newly made task
             }
             contiguousCandidate = finder.nextGroup(); 
         }
         
-        //System.out.println("Made " + numberOfGroupsMade + " new tasks during incorporation" + " for a total Primitive count of " + numberOfPrimitivesInGroupsMade);
-        validator.updateDemo(demo, group.getLabel().getId() );
-        
+        validator.updateDemo(demo, group.getLabel().getId() ); //change the demo to reflect all the changes we have decided to make  
     }
     
 	
@@ -215,9 +206,7 @@ public class OrderedIncorporator extends Incorporator{
 	        int index=0;
             for (Task demoTask : demo){
                 books[0][index++] = new PieceIndexTracker(group, demoTask, demoSize);
-                //System.out.print("| " + books[0][index-1].minIndex + "," + books[0][index-1].maxIndex);
             }
-            //System.out.println();
 	    }
 	    
 	    //This function dynamically builds books until it finds a candidate, which it returns
@@ -395,7 +384,6 @@ public class OrderedIncorporator extends Incorporator{
          * The final Contiguity Tree is an Ordered Group <ABCD>.
          */
 	    public VerifiedGroupOfTasks validate (int start, int end) {
-	        //System.out.println("Validating group from: "+ start + " to " + end);
 	        LinkedList<Task> tasksInDemoOrder = new LinkedList<Task>();
             LinkedList<Integer> groupIndexOfTasksInDemoOrder = new LinkedList<Integer>();
             LinkedList<Integer> directionOfTasksInDemoOrder = new LinkedList<Integer>();
@@ -502,10 +490,7 @@ public class OrderedIncorporator extends Incorporator{
             }
             
             //now, we have removed all the task that are a part of the OG from the demo
-            //we have replaced them with their new tasks, which are not correctly labeled, so let get to it...
-            System.out.println("    Found these Tasks in the OG:");
-            printTaskList(tasksFromOG);
-            
+            //we have replaced them with their new tasks, which are not correctly labeled, so let get to it...       
             int numberOfPieces = tasksFromOG.size();
             if (numberOfPieces==1) {
                 for (Task piece : tasksFromOG) {
@@ -539,14 +524,6 @@ public class OrderedIncorporator extends Incorporator{
 	        demo.clear();
 	        demo.addAll(newDemo);
 	        
-	    }
-	    
-	    
-	    private void printTaskList(List<Task> demo){
-	        for (Task task : demo) {
-	            task.printMe(4);
-	        }
-	        System.out.println();
 	    }
 	    
 	}

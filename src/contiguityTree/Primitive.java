@@ -10,21 +10,19 @@ public class Primitive extends Task {
 		object=obj;
 	}
 	
-	//All we have to do is correctly label versions of ourselves in the demo
+	//All we have to do is correctly label the versions of ourselves in the demo
 	public void incorporate(List<Task> demo) {
 	    boolean alreadyFound = false;
 		for (Task subTask : demo) {
 			if (this.contentEquals(subTask)) { 
 			    if (alreadyFound) throw new Error ("An object should only appear once in each demo!");
-			    subTask.setLabel(label); System.out.println("Successfully found: " + object + " in demo"); 
+			    subTask.setLabel(label);
 			    alreadyFound = true;
 			}
 		}
 	}
 	
-	public int absoluteSize(){
-		return 1;
-	}
+	public int absoluteSize(){ return 1; }
 	
 	public boolean contentEquals (Task task) {
 		return task instanceof Primitive && ((Primitive)task).object.equals(object);
@@ -36,10 +34,4 @@ public class Primitive extends Task {
 		printPreconditions();
 		System.out.println();
 	}
-	
-	//remove afer testing
-	public Object getObject() {
-		return object;
-	}
-	
 }
