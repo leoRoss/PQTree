@@ -91,10 +91,11 @@ public class OrderedGroup extends Group {
 		return orderedSubTasks.get(index); 
 	}
 	
+	//lenientIndex will return the index of the subTask even if a Piece is passed in
     public int lenientIndexOfSubTask (Task task) {
         int index=0;
         for (Task subTask : orderedSubTasks) {
-            if (subTask.lenientEquals(task)) return index;
+            if (subTask.equals(task)) return index;
             index++;
         }
         return -1;

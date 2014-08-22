@@ -46,9 +46,9 @@ public abstract class Task {
 	}
 	
 	//Two Tasks are lenientEqual if their labels are exactly the same
-	public boolean lenientEquals (Object obj) {
+	public boolean strictEquals (Object obj) {
 		if (obj instanceof Task) {
-			if (label.lenientEquals( ((Task)obj).getLabel() )) return true;
+			if (label.strictEquals( ((Task)obj).getLabel() )) return true;
 		}
 		return false;
 	}

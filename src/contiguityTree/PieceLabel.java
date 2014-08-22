@@ -3,14 +3,16 @@ package contiguityTree;
 //SubLabels are used to track pieces of split nodes
 public class PieceLabel extends Label {
 	private int brotherhoodSize; //number of brother pieces
-
-	PieceLabel (int labelId, int bros) {
+	private int uuid;
+	
+	PieceLabel (int labelId, int bros, int id) {
 		super(labelId);
 		brotherhoodSize=bros;
+		uuid=id;
 	}
 	
 	public String toString () {
-		return id + "("+brotherhoodSize+")";
+		return id + "("+uuid+"/"+brotherhoodSize+")";
 	}
 	
 	public boolean isPiece () {
@@ -20,15 +22,18 @@ public class PieceLabel extends Label {
 	public int getBrotherhoodSize () {
 		return brotherhoodSize;
 	}
-
-	//Piece Labels are only ever hashed against other piece labels, thus we have a perfect hash distribution
-	@Override
-	public int hashCode() {
-		return super.hashCode();
-	}
+	
+	//PieceLabels are strictequal as long as they have the same id and uuid and are both PieceLabels
+    public boolean strictEquals(Object obj) {
+        if (obj == this) return true;
+        if (obj == null) return false;
+        if (!(obj instanceof PieceLabel)) return false;
+        PieceLabel pLabel = (PieceLabel) obj;
+        return id == pLabel.id && uuid==pLabel.uuid;
+    }
 	
 	public Label copyLabel() {
-        PieceLabel copy = new PieceLabel(id, brotherhoodSize);
+        PieceLabel copy = new PieceLabel(id, brotherhoodSize, uuid);
         return copy;
     }
 }

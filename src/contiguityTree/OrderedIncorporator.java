@@ -411,18 +411,18 @@ public class OrderedIncorporator extends Incorporator{
            
             //check first edge to ensure we are not breaking apart a pre-existing task
             if (start>0) {
-                if (upToDateDemoTasks[start].equals(upToDateDemoTasks[start-1])) return null;
+                if (upToDateDemoTasks[start].strictEquals(upToDateDemoTasks[start-1])) return null;
             }
             
             //check last edge to ensure we are not breaking apart a pre-existing task
             if (end < upToDateDemoTasks.length-1) {
-                if (upToDateDemoTasks[end].equals(upToDateDemoTasks[end+1])) return null;
+                if (upToDateDemoTasks[end].strictEquals(upToDateDemoTasks[end+1])) return null;
             }
             
             //record each subtask, their direction, and their index with respect to the group
             Task currentTask = null;
             for (int k=start; k <= end; k++){
-                if ( ! upToDateDemoTasks[k].equals(currentTask)) {
+                if ( ! upToDateDemoTasks[k].strictEquals(currentTask)) {
                     currentTask = upToDateDemoTasks[k];
                     tasksInDemoOrder.add(upToDateDemoTasks[k]);
                     groupIndexOfTasksInDemoOrder.add(demoIndexedInGroup[k]);
@@ -480,7 +480,7 @@ public class OrderedIncorporator extends Incorporator{
                 if (demoIndexedInGroup[i] >= 0) { //this Task was a piece of the OG...
                     
                     //TODO! Error right here, two unresolved pieces deserve to be their own pieces
-                    if (i!=length-1 && upToDateDemoTasks[i].equals(upToDateDemoTasks[i+1])) { 
+                    if (i!=length-1 && upToDateDemoTasks[i].strictEquals(upToDateDemoTasks[i+1])) { 
                         //we are part of the same task as the last index we checked
                         startOfPiece=i;
                         if (i==0) {replaceTasksInDemo(demo, startOfPiece, endOfPiece);}
@@ -505,15 +505,22 @@ public class OrderedIncorporator extends Incorporator{
             //we have replaced them with their new tasks, which are not correctly labeled, so let get to it...
             System.out.println("    Found these Tasks in the OG:");
             printTaskList(tasksFromOG);
-            Label cookieCutLabel;
+            
             int numberOfPieces = tasksFromOG.size();
-            if (numberOfPieces==1) {cookieCutLabel = new Label(labelId);}
-            else if (numberOfPieces>1 ) {cookieCutLabel = new PieceLabel(labelId, numberOfPieces);}  //numberOfPieces is the size of the brotherhood
+            if (numberOfPieces==1) {
+                for (Task piece : tasksFromOG) {
+                    piece.setLabel(new Label(labelId));
+                }
+            }
+            else if (numberOfPieces>1 ) {
+                int index=0;
+                for (Task piece : tasksFromOG) {
+                    piece.setLabel(new PieceLabel(labelId, numberOfPieces,index++));
+                }
+            }  //numberOfPieces is the size of the brotherhood
             else {throw new Error ("No parts of the Ordered Group were found while incorporating!");}
             
-            for (Task piece : tasksFromOG) {
-                piece.setLabel(cookieCutLabel.copyLabel());
-            }
+            
 	    }
 	    
 	    private void replaceTasksInDemo (List<Task> demo, Integer start, Integer end) {
