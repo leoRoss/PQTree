@@ -30,11 +30,11 @@ public class OrderedIncorporator extends Incorporator{
     private Validator validator; //validate these groups using the index
     private GroupBuilder builder; //build nodes in the new tree
     
-    public OrderedIncorporator (OrderedGroup orderedGroupToIncorporateIntoDemo, List<Task> partiallyIncorporatedDemo) {
+    public OrderedIncorporator (OrderedGroup orderedGroupToIncorporateIntoDemo, List<Task> partiallyIncorporatedDemo) throws IncorporationError {
         demo = partiallyIncorporatedDemo;
         group = orderedGroupToIncorporateIntoDemo;
         int demoSize = demo.size();
-        if (demoSize<group.getSize()) throw new Error("The demo can not have less tasks than the group does");
+        if (demoSize<group.getSize()) throw new IncorporationError("The demo can not have less tasks than the group does");
         
         finder = new ContiguousGroupFinder( (OrderedGroup)group, demo);
         int [] indexOfDemoTasksInGroup = finder.indexOfDemoTasksInGroup();
@@ -44,7 +44,7 @@ public class OrderedIncorporator extends Incorporator{
     }
     
     
-    public void incorporate () {
+    public void incorporate () throws IncorporationError {
         int [] contiguousCandidate = finder.nextGroup();   // [start index in demo, end index in demo, number of tasks with PieceLabels in the group]
         
         while (contiguousCandidate!=null) { //while the finder continues to find contiguous groups   
@@ -456,7 +456,7 @@ public class OrderedIncorporator extends Incorporator{
 	    //If all pieces were combined into a single Task, relabel the Task with the same label as the OG
 	    //If there are multiple pieces left, relabel them all as pieces of OG
 	    //Of course, remove the old Tasks from the demo, and insert the new ones in their place
-	    public void updateDemo (List<Task> demo, int labelId) {
+	    public void updateDemo (List<Task> demo, int labelId) throws IncorporationError {
 	        List<Task> tasksFromOG = new LinkedList<Task>();
 	        Integer startOfPiece = null;
             Integer endOfPiece = null;
@@ -466,8 +466,6 @@ public class OrderedIncorporator extends Incorporator{
             //go from end to start, so that replacing part of the demo with a single task does not affect the rest of the loop!
             for (int i=length-1; i>=0; i--){
                 if (demoIndexedInGroup[i] >= 0) { //this Task was a piece of the OG...
-                    
-                    //TODO! Error right here, two unresolved pieces deserve to be their own pieces
                     if (i!=length-1 && upToDateDemoTasks[i].strictEquals(upToDateDemoTasks[i+1])) { 
                         //we are part of the same task as the last index we checked
                         startOfPiece=i;
@@ -503,7 +501,7 @@ public class OrderedIncorporator extends Incorporator{
                     piece.setLabel(new PieceLabel(labelId, numberOfPieces,index++));
                 }
             }  //numberOfPieces is the size of the brotherhood
-            else {throw new Error ("No parts of the Ordered Group were found while incorporating!");}
+            else {throw new IncorporationError ("No parts of the Ordered Group were found while incorporating!");}
             
             
 	    }
@@ -581,7 +579,7 @@ public class OrderedIncorporator extends Incorporator{
         
         public GroupBuilder (int demoLength) {}
         
-        abstract public Task buildTask (VerifiedGroupOfTasks verifiedGroup, int numberOfPeices);
+        abstract public Task buildTask (VerifiedGroupOfTasks verifiedGroup, int numberOfPeices) throws IncorporationError;
         
     }
    
@@ -605,7 +603,7 @@ public class OrderedIncorporator extends Incorporator{
 		    super(demoLength);
 		}
 		
-		public Task buildTask (VerifiedGroupOfTasks verifiedGroup, int numberOfPeices) {
+		public Task buildTask (VerifiedGroupOfTasks verifiedGroup, int numberOfPeices) throws IncorporationError {
 		    Task task;
 		    List<Task> tasks = verifiedGroup.tasks;
 		    int direction = verifiedGroup.direction;
@@ -626,7 +624,7 @@ public class OrderedIncorporator extends Incorporator{
     		    else if (direction==0){  //fluctuating task indices. ex: 11, 4, 7, 3
     		        task = new UnOrderedGroup(new Label(), null, tasks);
     		    }
-    		    else {throw new Error("Unsupported direction passed into buildNode()");}
+    		    else {throw new IncorporationError("Unsupported direction passed into buildNode()");}
 		    }
 		    
 		    return task;
@@ -645,7 +643,7 @@ public class OrderedIncorporator extends Incorporator{
             super(demoLength);
         }
 	    
-	    public Task buildTask (VerifiedGroupOfTasks verifiedGroup, int numberOfPeices) {
+	    public Task buildTask (VerifiedGroupOfTasks verifiedGroup, int numberOfPeices) throws IncorporationError {
             Task task;
             List<Task> tasks = verifiedGroup.tasks;
             int direction = verifiedGroup.direction;
@@ -665,7 +663,7 @@ public class OrderedIncorporator extends Incorporator{
                 else if (direction==0){  //fluctuating task indices. ex: 11, 4, 7, 3
                     task = new UnOrderedGroup(new Label(), null, verifiedGroup.tasks);
                 }
-                else {throw new Error("Unsupported direction passed into buildNode()");}
+                else {throw new IncorporationError("Unsupported direction passed into buildNode()");}
             }
             
             return task;

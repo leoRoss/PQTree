@@ -3,6 +3,7 @@ package contiguityTree;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 
 
@@ -57,13 +58,49 @@ public class OrderedGroup extends Group {
 	
 	
 	//INCORPORATION METHODS
-    public void incorporateChildren (List<Task>demo){
+    public void incorporateChildren (List<Task>demo) throws IncorporationError{
         for (Task subTask : orderedSubTasks) {
             subTask.incorporate(demo);
         }
     }
     
-    public void createNewIncorporator(List<Task> demo) { incorporator = new OrderedIncorporator(this, demo);}
+    public void createNewIncorporator(List<Task> demo) throws IncorporationError { incorporator = new OrderedIncorporator(this, demo);}
+    
+    
+    //TASK TO TASK METHODS
+    public boolean contentEquals (Task task) {
+        //early abort
+        if (task==null) return false;
+        if (size!=task.getSize()) return false;
+        if (absoluteSize()!=task.absoluteSize()) return false;
+        if (!sameType(task)) return false;
+        
+        OrderedGroup og = (OrderedGroup)task;
+   
+        //no matter what if they are in the same order, they are content equals
+        for (int i=0; i<size; i++){
+            if (!getSubTask(i).contentEquals(og.getSubTask(i))) break;
+            if (i==size-1) return true;
+        }
+        
+        //if its reversible, it has another chance at being equal
+        if (reversible){
+            for (int i=0; i<size; i++){
+                if (!getSubTask(i).contentEquals(og.getSubTask(size-1-i))) return false;
+                if (i==size-1) return true;
+            }
+        }
+        
+        return false;
+    }
+    
+    public Task fullCopy (){ 
+        List <Task> subTaskCopies = new LinkedList <Task> ();
+        for (Task subTask : orderedSubTasks) {
+             subTaskCopies.add(subTask.fullCopy());
+        }
+        return new OrderedGroup(label.copyLabel(), null, subTaskCopies, reversible);
+    }
     
     
     //INTERFACE WITH ORDERED SUBTASKS

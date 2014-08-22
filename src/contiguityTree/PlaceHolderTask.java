@@ -10,16 +10,24 @@ public class PlaceHolderTask extends Task {
 		super(copiedLabel, null, -1);
 	}
 
-	public void incorporate(List<Task> demo) {
-		throw new Error ("PlaceHolderTasks should never be called!");
+	public void incorporate(List<Task> demo) throws IncorporationError {
+		throw new IncorporationError ("PlaceHolderTask methods should never be called!");
 	}
 	
 	public int absoluteSize(){
-	    throw new Error ("PlaceHolderTasks should never be called!");
+	    throw new Error ("PlaceHolderTasks methods should never be called!");
 	}
 	
 	public void printMe(int depth) {
-	    throw new Error ("PlaceHolderTasks should never be called!");
+	    throw new Error ("PlaceHolderTasks methods should never be called!");
 	}
+	
+	public Task fullCopy() {
+        throw new Error ("PlaceHolderTasks methods should never be called!");
+    }
+
+    public boolean contentEquals(Task t) {
+        throw new Error ("PlaceHolderTasks methods should never be called!");
+    }
 	
 }

@@ -21,7 +21,7 @@ public abstract class Group extends Task {
     }
 
     // INCORPORATION METHODS
-    public void incorporate(List<Task> demo) {
+    public void incorporate(List<Task> demo) throws IncorporationError {
         // Let my subTasks try to incorporate themselves in the demo.
         incorporateChildren(demo);
         // At this point, each of my subTasks is either:
@@ -34,9 +34,9 @@ public abstract class Group extends Task {
         incorporator.incorporate();
     }
 
-    public abstract void incorporateChildren(List<Task> demo);
+    public abstract void incorporateChildren(List<Task> demo) throws IncorporationError;
 
-    public abstract void createNewIncorporator(List<Task> demo);
+    public abstract void createNewIncorporator(List<Task> demo) throws IncorporationError;
 
     
     // ILLEGAL FOR A SUBTASK TO HAVE A PIECE LABEL!
@@ -50,14 +50,14 @@ public abstract class Group extends Task {
     }
 
     protected abstract void addTask(Task task);
-
+    
+    public abstract boolean contentEquals (Task t); //encode same rules about the same set of Objects
+    public abstract Task fullCopy ();
     
     // Will return true even if Task is a Piece
     public boolean contains(Task task) { 
         return subTasks.contains(task);
     }
-
-
     
     protected Collection<Task> getSetSubTasks() {
         return subTasks;

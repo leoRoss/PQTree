@@ -51,46 +51,60 @@ import java.util.List;
 public class ContiguityTree {
     private Task head;
 
-    public ContiguityTree() {
-
-    }
+    public ContiguityTree() {}
+    public ContiguityTree(Task myHead) {head=myHead;}
 
     /* 
     * Take in a list of unlabeled primitive actions (the demo) and incorporate into the existing tree
-    * If incorporation fails, the demo is ignored and an Error is raised.
+    * If incorporation fails, the demo is ignored and false is returned
     * This could occur if the RULES (above) are not respected
     */
-    private void incorporate(List<Task> demo) {
+    private boolean incorporate(List<Task> demo) {
         if (head == null) {
             head = new OrderedGroup(new Label(), null, demo, false); // null parent, false because sequence is not reversible
-        } else {
+            return true;
+        } 
+        
+        try {
             head.incorporate(demo);
-            if (demo.size() != 1)
-                throw new Error(
-                        "The tree did not reduce the list to a single task");
-            head = demo.get(0);
+        } 
+        catch (IncorporationError e){
+            return false;
         }
+        
+        if (demo.size() != 1) return false; //the demo should now be a single task... the new tree
+        head = demo.get(0);
+        return true;
     }
     
     
     //The following two methods should be used to send a new sequence of Objects (List or Array) to the Tree
-    public void observeDemo(List<Object> demo) {
+    //They return false if unsuccessful
+    public boolean observeDemo(List<Object> demo) {
         List<Task> wrappedDemo = new ArrayList<Task>(demo.size());
         for (Object obj : demo) {
             wrappedDemo.add(new Primitive(obj)); // null parents for now
         }
-        incorporate(wrappedDemo);
+        return incorporate(wrappedDemo);
     }
-
-    public void observeDemo(Object[] demo) {
+    
+    public boolean observeDemo(Object[] demo) {
         List<Task> wrappedDemo = new ArrayList<Task>(demo.length);
         for (int i = 0; i < demo.length; i++) {
             wrappedDemo.add(new Primitive(demo[i])); // null parents for now
         }
-        incorporate(wrappedDemo);
+        return incorporate(wrappedDemo);
     }
     
     
+    public boolean equals (ContiguityTree tree){
+        return head.contentEquals(tree.head);
+    }
+    
+    //Create a full copy of the tree. Only the Objects stored in the Primitives are the same 
+    public ContiguityTree fullCopy (){
+        return new ContiguityTree(head.fullCopy());
+    }
     
     public void print() { head.printMe(0);}
 

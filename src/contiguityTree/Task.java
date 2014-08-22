@@ -18,7 +18,7 @@ public abstract class Task {
 	}
 	
 	//Transfer my knowledge to a new demo
-	public abstract void incorporate (List<Task> demo);
+	public abstract void incorporate (List<Task> demo) throws IncorporationError;
 	
 	//two Tasks are equal as long as they have equivalent labels
 	public boolean equals (Object obj) {
@@ -26,7 +26,7 @@ public abstract class Task {
 	    return obj instanceof Task && ((Task)obj).getLabel().equals(label);
 	}
 	
-	//Two Tasks are lenientEqual if their labels are exactly the same
+	//Two Tasks are strictEqual if their labels are exactly the same
 	public boolean strictEquals (Object obj) {
 		if (obj instanceof Task) {
 			if (label.strictEquals( ((Task)obj).getLabel() )) return true;
@@ -34,6 +34,11 @@ public abstract class Task {
 		return false;
 	}
 	
+	//Two Tasks are contentEqual if they encode the same contiguity rules about the same set of objects
+	//IE: They must have the same structure all the way down to the leaf of the node
+	public abstract boolean contentEquals (Task t);
+	
+	public abstract Task fullCopy ();
 	
 	//Number of leaf nodes below me    
     public abstract int absoluteSize ();

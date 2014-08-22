@@ -28,7 +28,7 @@ public class UnOrderedIncorporator extends Incorporator {
 
     }
 
-    public void incorporate() {
+    public void incorporate() throws IncorporationError{
 
         /* 
         * Instead of finding subTasks in the demo, lets try and find the demo tasks into the group.
@@ -79,8 +79,7 @@ public class UnOrderedIncorporator extends Incorporator {
             index++;
         }
 
-        UnOrderedGroup replacement = new UnOrderedGroup(group.getLabel()
-                .copyLabel(), null, mySubTasks);
+        UnOrderedGroup replacement = new UnOrderedGroup(group.getLabel().copyLabel(), null, mySubTasks);
         replaceTasksInDemo(start, end, replacement);
     }
 
@@ -104,8 +103,7 @@ public class UnOrderedIncorporator extends Incorporator {
         int index = 0;
         for (Task task : allMyPieces) {
             if (group.contains(task)) {
-                task.setLabel(new PieceLabel(group.getLabel().getId(),
-                        brotherhoodSize, index++));
+                task.setLabel(new PieceLabel(group.getLabel().getId(), brotherhoodSize, index++));
             }
         }
 
