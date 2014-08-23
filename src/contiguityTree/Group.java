@@ -2,6 +2,7 @@ package contiguityTree;
 
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
@@ -14,10 +15,13 @@ public abstract class Group extends Task {
     
     protected Set<Task> subTasks;
     protected Incorporator incorporator;
+    
+    protected List<Task> completed; //used for traversals
 
     public Group(Label lab, Task par, int numSubTasks) {
         super(lab, par, numSubTasks);
         subTasks = new HashSet<Task>((int) Math.ceil(numSubTasks / 0.75)); // initialize so will not need be resized
+        completed = new LinkedList<Task>();
     }
 
     // INCORPORATION METHODS
@@ -35,9 +39,22 @@ public abstract class Group extends Task {
     }
 
     public abstract void incorporateChildren(List<Task> demo) throws IncorporationError;
-
     public abstract void createNewIncorporator(List<Task> demo) throws IncorporationError;
 
+    
+    //TRAVERSAL METHODS
+    public abstract void getNextPossibleTasks(List<Primitive> list);
+    
+    public Task executeInTraversal(Task completedChild){
+        completed.add(completedChild);
+        //if all my tasks are completed, keep going up the chain. otherwise, stay here.
+        if (completed.size()==size) {
+            if (parent!=null) return parent.executeInTraversal(this);
+            return null;
+        }
+        return this;
+    }
+    
     
     // ILLEGAL FOR A SUBTASK TO HAVE A PIECE LABEL!
     // Thus, we relabel tasks with PieceLabels

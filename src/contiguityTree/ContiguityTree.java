@@ -1,6 +1,7 @@
 package contiguityTree;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 /* 
@@ -50,7 +51,12 @@ import java.util.List;
 
 public class ContiguityTree {
     private Task head;
-
+    
+    //Traversal Objects
+    private Task traversalCopy;
+    private Task traversalState;
+    List <Primitive> nextPossibleTasks;
+    
     public ContiguityTree() {}
     public ContiguityTree(Task myHead) {head=myHead;}
 
@@ -60,6 +66,8 @@ public class ContiguityTree {
     * This could occur if the RULES (above) are not respected
     */
     private boolean incorporate(List<Task> demo) {
+        if (demo==null || demo.size()==0) return false;
+        
         if (head == null) {
             head = new OrderedGroup(new Label(), null, demo, false); // null parent, false because sequence is not reversible
             return true;
@@ -97,13 +105,100 @@ public class ContiguityTree {
     }
     
     
-    public boolean equals (ContiguityTree tree){
+    public boolean equals (ContiguityTree tree) {
+        if (head==null) return false;
+        if (tree.head==null) return false;
         return head.contentEquals(tree.head);
     }
     
     //Create a full copy of the tree. Only the Objects stored in the Primitives are the same 
-    public ContiguityTree fullCopy (){
+    public ContiguityTree fullCopy () {
         return new ContiguityTree(head.fullCopy());
+    }
+    
+    
+    /*
+     * TRAVERSAL METHODS
+     * 
+     * The clean/safe way to traverse a Tree is to
+     * tree.startNewTraversal()
+     * Object[] myOptions = tree.nextPossibleObjects()
+     * while (myOptions.length>0) {
+     *      Object myChoice = //some Object from the myOptions Array
+     *      tree.choseObject(myChoice);
+     *      myOptions = tree.nextPossibleObjects()
+     * }
+     *  
+     * However, choseObject(Object obj) can be called without calling nextPossibleObjects()
+     * That being said, choseObject will return false if the Object is not legal
+     * 
+     * Thus, confident people could simply...
+     * 
+     * tree.startNewTraversal();
+     * Object[] whatIThinkIsALegalStart = //make an array of objects you think respects all the rules when starting a traversal
+     * int index=0;
+     * while (tree.choseObject(whatIThinkIsALegalStart[index++])) {}
+     * Now, you could finish of the traversal in a safe way, knowing your first index actions were successfully executed
+     * 
+     * IMPORTANT: Always call startNewTraversal() when you want to start a fresh traversal of the tree
+     */
+    
+    public void startNewTraversal() {
+        traversalCopy = head.fullCopy();
+        traversalState = traversalCopy;
+    }
+    
+    public Object[] nextPossibleObjects() {
+        nextPossibleTasks = getNextPossibleTasks();
+        Object[] nextPossibleActions = new Object[nextPossibleTasks.size()];
+        int index=0;
+        for (Primitive possibleTask :  nextPossibleTasks) {
+            nextPossibleActions[index++]= possibleTask.getObject();
+        }
+        return nextPossibleActions;
+    }
+    
+    //choseObject 
+    public boolean choseObject(Object obj) { 
+        if (nextPossibleTasks==null) {nextPossibleTasks = getNextPossibleTasks();}
+        for (Primitive possibleTask :  nextPossibleTasks) {
+            if(possibleTask.objectIs(obj)) {
+                traversalState = possibleTask.executeInTraversal(null);
+                nextPossibleTasks=null;
+                return true;
+            }
+        }
+        
+        //they chose an invalid options
+        return false;   
+    }
+    
+    private List<Primitive> getNextPossibleTasks(){
+        List<Primitive> nextPossibleTasks = new LinkedList<Primitive>();
+        if (traversalState!=null) traversalState.getNextPossibleTasks(nextPossibleTasks);
+        return nextPossibleTasks;
+    }
+    
+    
+    //Experiment Related Methods
+    public List<Object> randomlyTraverse () {
+        List<Object> traversal = new LinkedList<Object> ();
+        startNewTraversal();
+        Object[] myOptions = nextPossibleObjects();
+        while (myOptions.length>0) {
+             Object myChoice = myOptions[(int) Math.floor(Math.random()*myOptions.length)];//some Object from the myOptions Array
+             choseObject(myChoice);
+             traversal.add(myChoice);
+             myOptions = nextPossibleObjects();
+        }
+        return traversal;
+    }
+    
+    public int recreateTreeUsingRandomTraversalsAsDemonstrations () {
+        int numberOfDemos = 0;
+        ContiguityTree copy = new ContiguityTree();
+        while(!copy.equals(this)) {copy.observeDemo(randomlyTraverse()); numberOfDemos++;}
+        return numberOfDemos;
     }
     
     public void print() { head.printMe(0);}

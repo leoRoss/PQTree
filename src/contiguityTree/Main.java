@@ -1,14 +1,16 @@
 package contiguityTree;
 
+import java.util.List;
+
 public class Main {
 
     /**
      * @param args
      */
     public static void main(String[] args) {
+        
         ContiguityTree tree = new ContiguityTree();
         System.out.println("Successfully made tree\n");
-        
         
         Object[] demo1 = new Object[] { "A", "B", "C", "D", "E" };
         Object[] demo2 = new Object[] { "D", "A", "C", "B", "E" };
@@ -18,41 +20,54 @@ public class Main {
         
         observeDemo(tree,demo1);
         copyPrintAndAssertEqual(tree);
+        runTraversalExperiment(tree);
+        
         observeDemo(tree,demo2);
         copyPrintAndAssertEqual(tree);
+        runTraversalExperiment(tree);
+        
         observeDemo(tree,demo3);
         copyPrintAndAssertEqual(tree);
-        ContiguityTree treeCopyAfterDemo3 = tree.fullCopy();
+        runTraversalExperiment(tree);
+        
         observeDemo(tree,demo4);
         copyPrintAndAssertEqual(tree);
-        ContiguityTree treeCopyAfterDemo4 = tree.fullCopy();
+        runTraversalExperiment(tree);
+        
         observeDemo(tree,demo5);
         copyPrintAndAssertEqual(tree);
-        
-        if(treeCopyAfterDemo3.equals(tree)) throw new Error("treeCopyAfterDemo3 should NOT be the same as after demo5");
-        if(!treeCopyAfterDemo4.equals(tree)) throw new Error("treeCopyAfterDemo4 should be the same as after demo5");
+        runTraversalExperiment(tree);
+        System.out.println();
     }
     
     private static void observeDemo(ContiguityTree ct, Object[] demo){
         printDemo(demo);
+        System.out.println();
         ct.observeDemo(demo);
-        System.out.println("Final Result:");
+        System.out.println("Resulting Tree:");
         ct.print();     
     }
     
     private static void copyPrintAndAssertEqual(ContiguityTree ct){
         ContiguityTree treeCopy = ct.fullCopy();
-        System.out.println("Copy:");
+        System.out.println("Making a copy of the tree:");
         treeCopy.print();
-        if (ct.equals(treeCopy)) {System.out.println("The two trees are equal");}
+        if (ct.equals(treeCopy)) {System.out.println("The two trees are indeed equal");}
         else {throw new Error ("The copy was not equal to the other tree!");}
-        System.out.println();
         System.out.println();
     }
     
     private static void printDemo (Object[] demo){
-        System.out.print("Demo: ");
+        System.out.print("Observing Demo: ");
         for (int i=0; i<demo.length; i++) System.out.print(demo[i]+ ", ");
+        System.out.println();
+    }
+    
+    private static void runTraversalExperiment (ContiguityTree ct) {
+        System.out.println("It took "+ct.recreateTreeUsingRandomTraversalsAsDemonstrations()+" random traversal(s) to recreate an equivalent tree");
+        System.out.println();
+        System.out.println();
+        System.out.println("--------------------------------------------------------------------------------");
         System.out.println();
     }
 }

@@ -56,6 +56,11 @@ public abstract class Task {
 	public int getBrotherhoodSize() {return label.getBrotherhoodSize(); }
 	
 	
+	//TRAVERSAL METHODS
+	public abstract void getNextPossibleTasks(List<Primitive> list);
+	public abstract Task executeInTraversal(Task completedChild); //returns the new traversalState - the node we are currently executing
+	
+	
 	//GETTERS AND SETTERS
     public Label getLabel () {return label;}
     public void setLabel (Label l) {label = l;}

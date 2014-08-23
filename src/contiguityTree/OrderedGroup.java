@@ -116,7 +116,33 @@ public class OrderedGroup extends Group {
     public Task getSubTask (int index) { return orderedSubTasks.get(index); }
     protected List<Task> getOrderedSubTasks (){return orderedSubTasks;}
     
-	
+    
+    //TRAVERSAL METHODS
+    public void getNextPossibleTasks(List<Primitive> list){
+        if (completed.contains(orderedSubTasks.get(0))){
+            for (int i=1; i<size; i++) {
+               Task temp = orderedSubTasks.get(i);
+               if (! completed.contains(temp)) {
+                   temp.getNextPossibleTasks(list);
+                   return;
+               }
+            }
+        }
+        else if (reversible && completed.contains(orderedSubTasks.get(size-1))){
+            for (int i=size-1; i>=0; i--) {
+                Task temp = orderedSubTasks.get(i);
+                if (! completed.contains(temp)) {
+                    temp.getNextPossibleTasks(list);
+                    return;
+                }
+             }
+        }
+        else { //we can take either end (if reversible)
+            orderedSubTasks.get(0).getNextPossibleTasks(list);
+            if (reversible) {orderedSubTasks.get(size-1).getNextPossibleTasks(list);}
+        }
+    }
+    
     //GENERAL GROUP METHODS - DOCUMENTED IN GROUP CLASS
 	protected boolean sameType (Task task) {
 		if (task instanceof OrderedGroup){

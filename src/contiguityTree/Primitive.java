@@ -30,6 +30,20 @@ public class Primitive extends Task {
         return task!=null && task instanceof Primitive && ((Primitive)task).object.equals(object);
     }
 	
+	
+	//TRAVERSAL METHODS
+    public void getNextPossibleTasks(List<Primitive> list){
+        list.add(this);
+    }
+    
+    public Task executeInTraversal(Task completedChild){
+        if (parent!=null) return parent.executeInTraversal(this);
+        return null;
+    }
+    
+	
+	public boolean objectIs (Object obj){return obj.equals(object);}
+	
 	public Task fullCopy (){ return new Primitive(label.copyLabel(), object);}
 	
 	public int absoluteSize(){ return 1; }
@@ -40,4 +54,6 @@ public class Primitive extends Task {
 		printPreconditions();
 		System.out.println();
 	}
+	
+	public Object getObject(){return object;}
 }

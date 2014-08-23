@@ -32,6 +32,16 @@ public class UnOrderedGroup extends Group {
 	public void createNewIncorporator(List<Task> demo) throws IncorporationError { incorporator = new UnOrderedIncorporator(this, demo); }
 	
 	
+	//TRAVERSAL METHODS
+    public void getNextPossibleTasks(List<Primitive> list){
+        for (Task subTask : subTasks) {
+            if (! completed.contains(subTask)) {
+                subTask.getNextPossibleTasks(list);
+            }
+        }
+    }
+    
+    
 	//TASK TO TASK METHODS
 	public boolean contentEquals (Task task) {
         //early abort

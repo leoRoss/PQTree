@@ -29,5 +29,13 @@ public class PlaceHolderTask extends Task {
     public boolean contentEquals(Task t) {
         throw new Error ("PlaceHolderTasks methods should never be called!");
     }
+    
+    public void getNextPossibleTasks(List<Primitive> list){
+        throw new Error ("PlaceHolderTasks methods should never be called!");
+    }
+    
+    public Task executeInTraversal(Task t){
+        throw new Error ("PlaceHolderTasks methods should never be called!");
+    }
 	
 }
