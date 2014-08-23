@@ -1,7 +1,5 @@
 package contiguityTree;
 
-import java.util.List;
-
 public class Main {
 
     /**
@@ -37,6 +35,18 @@ public class Main {
         observeDemo(tree,demo5);
         copyPrintAndAssertEqual(tree);
         runTraversalExperiment(tree);
+        
+        //Incremental Demo Example
+        tree.startNewDemo();
+        tree.sendNextDemoObject("B");
+        tree.sendNextDemoObject("A");
+        tree.sendNextDemoObject("D");
+        tree.sendNextDemoObject("E");
+        tree.sendNextDemoObject("C");
+        tree.sendDemo();
+        
+        tree.print();
+        System.out.println();
         System.out.println();
     }
     
@@ -70,4 +80,6 @@ public class Main {
         System.out.println("--------------------------------------------------------------------------------");
         System.out.println();
     }
+    
+    
 }

@@ -57,6 +57,8 @@ public class ContiguityTree {
     private Task traversalState;
     List <Primitive> nextPossibleTasks;
     
+    private List <Object> incrementalDemo;
+    
     public ContiguityTree() {}
     public ContiguityTree(Task myHead) {head=myHead;}
 
@@ -104,6 +106,19 @@ public class ContiguityTree {
         return incorporate(wrappedDemo);
     }
     
+    
+    public void startNewDemo() {
+        incrementalDemo= new LinkedList <Object> ();
+    }
+      
+    public void sendNextDemoObject(Object obj){
+        incrementalDemo.add(obj);
+    }
+      
+    public void sendDemo() {
+        observeDemo(incrementalDemo);
+        incrementalDemo= new LinkedList <Object> ();
+    }
     
     public boolean equals (ContiguityTree tree) {
         if (head==null) return false;
