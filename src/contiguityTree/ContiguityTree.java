@@ -210,18 +210,16 @@ public class ContiguityTree {
              traversal.add(myChoice);
              myOptions = nextPossibleObjects();
         }
-        printList(traversal);
+        //printObjectList(traversal);
         return traversal;
     }
     
-    public void printList(List<Object> l){
-    	for (Object o : l) {System.out.print(o+" ");} System.out.println();
-    }
+    public void printObjectList(List<Object> l){for (Object o : l) {System.out.print(o+" ");} System.out.println(); }
       
     public int recreateTreeUsingRandomTraversalsAsDemonstrations () {
         int numberOfDemos = 0;
         ContiguityTree copy = new ContiguityTree();
-        while(numberOfDemos<10 && !copy.equals(this)) {copy.observeDemo(randomlyTraverse()); numberOfDemos++; copy.print();}
+        while(!copy.equals(this)) {copy.observeDemo(randomlyTraverse()); numberOfDemos++;}
         return numberOfDemos;
     }
     

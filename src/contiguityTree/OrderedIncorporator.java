@@ -45,12 +45,12 @@ public class OrderedIncorporator extends Incorporator{
     
     
     public void incorporate () throws IncorporationError {
-        int [] contiguousCandidate = finder.nextGroup();   // [start index in demo, end index in demo, number of tasks with PieceLabels in the group]
+        int [] contiguousCandidate = finder.nextGroup();   // [start index in demo, end index in demo]
         
         while (contiguousCandidate!=null) { //while the finder continues to find contiguous groups   
             VerifiedGroupOfTasks verifiedGroup = validator.validate(contiguousCandidate[0], contiguousCandidate[1]);
             if (verifiedGroup != null) { //if the indices were validated
-                Task task = builder.buildTask(verifiedGroup, contiguousCandidate[2]); //build the task from the indices in the demo
+                Task task = builder.buildTask(verifiedGroup); //build the task from the indices in the demo
                 if (DEBUGGING) {System.out.println("    Made Task:"); task.printMe(2); System.out.println(); System.out.println();}
                 validator.update(contiguousCandidate[0], contiguousCandidate[1], task, verifiedGroup.direction); //update our books for the validator with the newly made task
             }
@@ -221,7 +221,7 @@ public class OrderedIncorporator extends Incorporator{
 	            while (j<size-i-1){
 	                j++;
 	                books[i][j]=new PieceIndexTracker(books[i-1][j],books[i-1][j+1]);
-	                if (books[i][j].candidateForGrouping()) return new int[]{j,j+i, books[i][j].numberOfPeices()};
+	                if (books[i][j].candidateForGrouping()) return new int[]{j,j+i};
 	            }
 	        }
 	        return null;
@@ -387,7 +387,7 @@ public class OrderedIncorporator extends Incorporator{
 	        LinkedList<Task> tasksInDemoOrder = new LinkedList<Task>();
             LinkedList<Integer> groupIndexOfTasksInDemoOrder = new LinkedList<Integer>();
             LinkedList<Integer> directionOfTasksInDemoOrder = new LinkedList<Integer>();
-           
+            int numberOfUnResolvedPieces = 0;
             /*
              * As described above, when building a new Task, we must ensure that we are not breaking up any existing tasks
              * While we do this, we can go ahead and find out if the task is Ordered(sequential or reversible) or Unordered
@@ -410,6 +410,7 @@ public class OrderedIncorporator extends Incorporator{
             //record each subtask, their direction, and their index with respect to the group
             Task currentTask = null;
             for (int k=start; k <= end; k++){
+            	if (upToDateDemoTasks[k].isPiece()) numberOfUnResolvedPieces++;
                 if ( ! upToDateDemoTasks[k].strictEquals(currentTask)) {
                     currentTask = upToDateDemoTasks[k];
                     tasksInDemoOrder.add(upToDateDemoTasks[k]);
@@ -421,7 +422,7 @@ public class OrderedIncorporator extends Incorporator{
             //determine the GroupType based on L1IndexOfTasksInL2Order's numeric ordering
             int direction = determineDirection(groupIndexOfTasksInDemoOrder);
             
-            return new VerifiedGroupOfTasks(tasksInDemoOrder, direction, directionOfTasksInDemoOrder);
+            return new VerifiedGroupOfTasks(tasksInDemoOrder, direction, directionOfTasksInDemoOrder, numberOfUnResolvedPieces);
 	    }
 	    
 	    //return 1 if the tasks are in the same order
@@ -579,7 +580,7 @@ public class OrderedIncorporator extends Incorporator{
         
         public GroupBuilder (int demoLength) {}
         
-        abstract public Task buildTask (VerifiedGroupOfTasks verifiedGroup, int numberOfPeices) throws IncorporationError;
+        abstract public Task buildTask (VerifiedGroupOfTasks verifiedGroup) throws IncorporationError;
         
     }
    
@@ -589,7 +590,7 @@ public class OrderedIncorporator extends Incorporator{
      * This class is used when incorporating a reversible oGroup
      * 
      * We follow these rules:
-     * - If a group of tasks contained pieces we make an unordered group
+     * - If a group of tasks contains unresolved pieces we make an unordered group
      * - If a group of tasks is in the same direction in the oGroup and in the demo:
      *       - make a non-reversible OrderedGroup
      *       - note that the direction was the same (1)
@@ -603,14 +604,14 @@ public class OrderedIncorporator extends Incorporator{
 		    super(demoLength);
 		}
 		
-		public Task buildTask (VerifiedGroupOfTasks verifiedGroup, int numberOfPeices) throws IncorporationError {
+		public Task buildTask (VerifiedGroupOfTasks verifiedGroup) throws IncorporationError {
 		    Task task;
 		    List<Task> tasks = verifiedGroup.tasks;
 		    int direction = verifiedGroup.direction;
             List<Integer> subTaskDirections = verifiedGroup.subTaskDirections;
             
-		    //if there are any pieces we have to make an UnOrderedGroup no matter what
-		    if (numberOfPeices>0) {
+		    //if there are any unresolved pieces we have to make an UnOrderedGroup no matter what
+		    if (verifiedGroup.numberOfUnResolvedPieces>0) {
 		        task = new UnOrderedGroup(new Label(), null, verifiedGroup.tasks);
 		    }
 		    
@@ -643,14 +644,14 @@ public class OrderedIncorporator extends Incorporator{
             super(demoLength);
         }
 	    
-	    public Task buildTask (VerifiedGroupOfTasks verifiedGroup, int numberOfPeices) throws IncorporationError {
+	    public Task buildTask (VerifiedGroupOfTasks verifiedGroup) throws IncorporationError {
             Task task;
             List<Task> tasks = verifiedGroup.tasks;
             int direction = verifiedGroup.direction;
             List<Integer> subTaskDirections = verifiedGroup.subTaskDirections;
             
-            //if there are any pieces we have to make an UnOrderedGroup no matter what
-            if (numberOfPeices>0) {
+            //if there are any unresolved pieces we have to make an UnOrderedGroup no matter what
+            if (verifiedGroup.numberOfUnResolvedPieces>0) {
                 task = new UnOrderedGroup(new Label(), null, verifiedGroup.tasks);
             }
             else {
@@ -694,11 +695,13 @@ public class OrderedIncorporator extends Incorporator{
 	    private List<Task> tasks;
 	    private List<Integer> subTaskDirections;
 	    private int direction;
+	    private int numberOfUnResolvedPieces;
 	    
-	    public VerifiedGroupOfTasks ( List<Task> tasksToBeGrouped, int dir, List<Integer> subTaskDirs) {
+	    public VerifiedGroupOfTasks ( List<Task> tasksToBeGrouped, int dir, List<Integer> subTaskDirs, int numOfUnResolvedPieces) {
 	        tasks = tasksToBeGrouped;
 	        direction = dir;
 	        subTaskDirections = subTaskDirs;
+	        numberOfUnResolvedPieces = numOfUnResolvedPieces;
 	    }
 	}	
 	
