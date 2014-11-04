@@ -145,7 +145,29 @@ public class Main {
     static int [] bd2 = bd1;
     static int [] bd3 = bd1;
     
+    static int [] bda1 = new int[] {222,223,224,225,226,227,228,229,230,231,232,233};
+    static int [] bda2 = new int[] {231,232,233,226,225,228,227,230,229,223,224,222};
+    static int [] bda3 = new int[] {224,222,223,225,226,227,228,229,230,233,232,231};
     
+    static int [] bdb1 = new int[] {234,235,236};
+    static int [] bdb2 = new int[] {235,236,234};
+    static int [] bdb3 = new int[] {236,234,235};
+    
+    static int [] bdc1 = new int[] {237,238,239,240,241,242};
+    static int [] bdc2 = new int[] {241,242,239,240,237,238};
+    static int [] bdc3 = new int[] {238,237,240,239,242,241};
+    
+    static int [] bdd1 = new int[] {243,244,245,246,247,248,249,250,251,252,253,254,255,256};
+    static int [] bdd2 = new int[] {250,249,252,253,251,247,248,245,246,256,255,254,244,243};
+    static int [] bdd3 = new int[] {254,255,256,243,244,245,246,247,248,249,250,253,251,252};
+    
+    static int [] bde1 = new int[] {257,258,259,260,261,262,263,264,265};
+    static int [] bde2 = new int[] {264,265,263,261,262,260,258,259,257};
+    static int [] bde3 = new int[] {259,257,258,262,260,261,265,263,264};
+    
+    static int [] bdf1 = new int[] {266,267,268,269};
+    static int [] bdf2 = new int[] {267,269,266,268};
+    static int [] bdf3 = new int[] {266,267,268,269};
     
     public static void superTest () {
     	System.out.println("--------------------------------------------------------------------------------");
@@ -156,9 +178,9 @@ public class Main {
         
     	ContiguityTree giant = new ContiguityTree();
     	
-    	accumulateAndSendDemosToTree(giant,a3,bf3,be3,bd3,bc3,bb3,ba3,c3,d3,e3,f3);
-    	accumulateAndSendDemosToTree(giant,d2,ba2,bb2,bc2,bd2,be2,bf2,f2,a2,e2,c2);
-    	accumulateAndSendDemosToTree(giant,a1,ba1,bb1,bc1,bd1,be1,bf1,c1,d1,e1,f1);
+    	accumulateAndSendDemosToTree(giant,a3,bf3,be3, bda3,bdb3,bdc3,bdd3,bde3,bdf3 ,bc3,bb3,ba3,c3,d3,e3,f3);
+    	accumulateAndSendDemosToTree(giant,d2,ba2,bb2,bc2, bda2,bdb2,bdc2,bdd2,bde2,bdf2 ,be2,bf2,f2,a2,e2,c2);
+    	accumulateAndSendDemosToTree(giant,a1,ba1,bb1,bc1, bda1,bdb1,bdc1,bdd1,bde1,bdf1 ,be1,bf1,c1,d1,e1,f1);
     	
     	System.out.println();
     	giant.print();
