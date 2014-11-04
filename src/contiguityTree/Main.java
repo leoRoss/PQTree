@@ -99,10 +99,26 @@ public class Main {
     }
     
     
-    
+    //SUPER TEST DEMOS BROKEN UP... for Leo's sanity :P
     static int [] a1 = new int[] {1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,23,24,25,26,27,28,29,30,31,32,33,34};
     static int [] a2 = new int[] {13,14,15,11,12,17,18,16,21,28,23,26,24,27,25,29,30,31,19,20,33,34,32,5,6,4,9,7,10,8,2,3,1};
     static int [] a3 = new int[] {18,16,17,30,31,19,20,21,24,25,26,27,28,23,29,34,32,33,7,8,9,10,3,1,2,6,4,5,11,12,13,14,15};
+    
+    static int [] c1 = new int[] {201,202};
+    static int [] c2 = c1;
+    static int [] c3 = c1;
+    
+    static int [] d1 = new int[] {301,302,303,304};
+    static int [] d2 = new int[] {302,304,301,303};
+    static int [] d3 = d1;
+    
+    static int [] e1 = new int[] {401,402,403};
+    static int [] e2 = new int[] {403,402,401};
+    static int [] e3 = e1;
+    
+    static int [] f1 = new int[] {501,502,503,504,505};
+    static int [] f2 = new int[] {502,503,501,505,504};
+    static int [] f3 = new int[] {503,501,502,504,505};
     
     public static void superTest () {
     	System.out.println("--------------------------------------------------------------------------------");
@@ -113,9 +129,9 @@ public class Main {
         
     	ContiguityTree giant = new ContiguityTree();
     	
-    	accumulateAndSendDemosToTree(giant,a3);
-    	accumulateAndSendDemosToTree(giant,a2);
-    	accumulateAndSendDemosToTree(giant,a1);
+    	accumulateAndSendDemosToTree(giant,a3,c3,d3,e3,f3);
+    	accumulateAndSendDemosToTree(giant,d2,f2,a2,e2,c2);
+    	accumulateAndSendDemosToTree(giant,a1,c1,d1,e1,f1);
     	
     	System.out.println();
     	giant.print();
