@@ -8,8 +8,8 @@ public class Main {
      * @param args
      */
     public static void main(String[] args) {
-        //basicTest();
-        superTest();
+        basicTest();
+        //superTest();
     }
     
     public static void basicTest () {
@@ -186,7 +186,17 @@ public class Main {
     	giant.print();
     	
     	System.out.println();
+    	System.out.println("Starting Experiment: Recreating tree using ? random traversals 100 times...");
+    	
+    	long startTime = System.nanoTime();
+    	for (int i=0; i<100; i++){
+    		System.out.println(giant.recreateTreeUsingRandomTraversalsAsDemonstrations());
+    	}
     	runTraversalExperiment(giant);
+    	long endTime = System.nanoTime();
+    	
+    	
+    	System.out.println("Total Time: "+ (endTime-startTime));
     	
     	System.out.println();
         System.out.println();
