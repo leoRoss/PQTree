@@ -79,10 +79,14 @@ public class ContiguityTree {
             head.incorporate(demo);
         } 
         catch (IncorporationError e){
+        	System.out.println("DEMO FAILED TO INCORPORATE");
             return false;
         }
         
-        if (demo.size() != 1) return false; //the demo should now be a single task... the new tree
+        if (demo.size() != 1) { 
+        	System.out.println("DEMO FAILED TO INCORPORATE"); 
+        	return false; //the demo should now be a single task... the new tree
+        }
         head = demo.get(0);
         return true;
     }
@@ -206,13 +210,18 @@ public class ContiguityTree {
              traversal.add(myChoice);
              myOptions = nextPossibleObjects();
         }
+        printList(traversal);
         return traversal;
     }
     
+    public void printList(List<Object> l){
+    	for (Object o : l) {System.out.print(o+" ");} System.out.println();
+    }
+      
     public int recreateTreeUsingRandomTraversalsAsDemonstrations () {
         int numberOfDemos = 0;
         ContiguityTree copy = new ContiguityTree();
-        while(!copy.equals(this)) {copy.observeDemo(randomlyTraverse()); numberOfDemos++;}
+        while(numberOfDemos<10 && !copy.equals(this)) {copy.observeDemo(randomlyTraverse()); numberOfDemos++; copy.print();}
         return numberOfDemos;
     }
     

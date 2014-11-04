@@ -20,9 +20,7 @@ import java.util.List;
 
 public class UnOrderedIncorporator extends Incorporator {
 
-    public UnOrderedIncorporator(
-            UnOrderedGroup unOrderedGroupToIncorporateIntoDemo,
-            List<Task> partiallyIncorporatedDemo) {
+    public UnOrderedIncorporator(UnOrderedGroup unOrderedGroupToIncorporateIntoDemo, List<Task> partiallyIncorporatedDemo) {
         demo = partiallyIncorporatedDemo;
         group = unOrderedGroupToIncorporateIntoDemo;
 
@@ -35,11 +33,10 @@ public class UnOrderedIncorporator extends Incorporator {
         * This lets us leverage the demo.contains method with O(1)
         * O(demo.length) or O(3*demo.length).... who cares lets just make this code readable!
         */
+        if (demo.size()<group.getSize()) throw new IncorporationError("The demo can not have less tasks than the group does");
         
-        if (allGroupSubTasksAreContiguous())
-            replaceSingleChunkOfGroupSubTasks();
-        else
-            relabelAllGroupSubTasksAsPieces();
+        if (allGroupSubTasksAreContiguous()) replaceSingleChunkOfGroupSubTasks();
+        else relabelAllGroupSubTasksAsPieces();
 
     }
 
@@ -49,11 +46,9 @@ public class UnOrderedIncorporator extends Incorporator {
         for (Task task : demo) {
             if (group.contains(task)) {
                 started = true;
-                if (ended)
-                    return false; // hit a second hunk of subTasks
+                if (ended) return false; // hit a second hunk of subTasks
             } else {
-                if (started)
-                    ended = true;
+                if (started) ended = true;
             }
         }
         return started;
@@ -83,8 +78,7 @@ public class UnOrderedIncorporator extends Incorporator {
         replaceTasksInDemo(start, end, replacement);
     }
 
-    private void replaceTasksInDemo(Integer start, Integer end,
-            Task replacementTask) {
+    private void replaceTasksInDemo(Integer start, Integer end, Task replacementTask) {
         int demoSize = demo.size();
         List<Task> startOfDemo = demo.subList(0, start);
         List<Task> endOfDemo = demo.subList(end + 1, demoSize);
@@ -98,20 +92,17 @@ public class UnOrderedIncorporator extends Incorporator {
     }
 
     private void relabelAllGroupSubTasksAsPieces() {
-        List<Task> allMyPieces = findAllMyPieces();
+    	List<Task> allMyPieces = findAllMyPieces();  
         int brotherhoodSize = allMyPieces.size();
         int index = 0;
         for (Task task : allMyPieces) {
-            if (group.contains(task)) {
-                task.setLabel(new PieceLabel(group.getLabel().getId(), brotherhoodSize, index++));
-            }
+        	task.setLabel(new PieceLabel(group.getLabel().getId(), brotherhoodSize, index++));
         }
-
     }
 
     private List<Task> findAllMyPieces() {
         List<Task> allMyPieces = new LinkedList<Task>();
-        for (Task task : allMyPieces) {
+        for (Task task : demo) {
             if (group.contains(task)) {
                 allMyPieces.add(task);
             }
