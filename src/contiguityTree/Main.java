@@ -104,7 +104,7 @@ public class Main {
     static int [] a2 = new int[] {13,14,15,11,12,17,18,16,21,28,23,26,24,27,25,29,30,31,19,20,33,34,32,5,6,4,9,7,10,8,2,3,1};
     static int [] a3 = new int[] {18,16,17,30,31,19,20,21,24,25,26,27,28,23,29,34,32,33,7,8,9,10,3,1,2,6,4,5,11,12,13,14,15};
     
-    static int [] c1 = new int[] {201,202};
+    static int [] c1 = new int[] {101,102};
     static int [] c2 = c1;
     static int [] c3 = c1;
     
@@ -120,6 +120,33 @@ public class Main {
     static int [] f2 = new int[] {502,503,501,505,504};
     static int [] f3 = new int[] {503,501,502,504,505};
     
+    //b group is more complex!
+    static int [] ba1 = new int[] {201,202,203,204,205,206,207,208,209,210};
+    static int [] ba2 = new int[] {209,210,204,207,206,205,208,202,203,201};
+    static int [] ba3 = new int[] {203,201,202,208,205,206,207,204,209,210};
+    
+    static int [] bb1 = new int[] {211,212,213,214,215,216,217,218,219};
+    static int [] bb2 = new int[] {219,212,213,211,218,217,215,216,214};
+    static int [] bb3 = new int[] {216,214,215,217,218,219,213,211,212};
+    
+    static int [] bc1 = new int[] {220,221};
+    static int [] bc2 = bc1;
+    static int [] bc3 = bc1;
+    
+    static int [] be1 = new int[] {270,271,272};
+    static int [] be2 = new int[] {272,271,270};
+    static int [] be3 = be1;
+    
+    static int [] bf1 = new int[] {273,274,275,276,277,278};
+    static int [] bf2 = new int[] {275,276,277,278,273,274};
+    static int [] bf3 = new int[] {277,278,273,274,275,276};
+    
+    static int [] bd1 = new int[] {700,701,702};
+    static int [] bd2 = bd1;
+    static int [] bd3 = bd1;
+    
+    
+    
     public static void superTest () {
     	System.out.println("--------------------------------------------------------------------------------");
         System.out.println("Starting Super Test");
@@ -129,9 +156,9 @@ public class Main {
         
     	ContiguityTree giant = new ContiguityTree();
     	
-    	accumulateAndSendDemosToTree(giant,a3,c3,d3,e3,f3);
-    	accumulateAndSendDemosToTree(giant,d2,f2,a2,e2,c2);
-    	accumulateAndSendDemosToTree(giant,a1,c1,d1,e1,f1);
+    	accumulateAndSendDemosToTree(giant,a3,bf3,be3,bd3,bc3,bb3,ba3,c3,d3,e3,f3);
+    	accumulateAndSendDemosToTree(giant,d2,ba2,bb2,bc2,bd2,be2,bf2,f2,a2,e2,c2);
+    	accumulateAndSendDemosToTree(giant,a1,ba1,bb1,bc1,bd1,be1,bf1,c1,d1,e1,f1);
     	
     	System.out.println();
     	giant.print();
