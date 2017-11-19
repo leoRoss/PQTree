@@ -56,4 +56,8 @@ public class Primitive extends Task {
 	}
 	
 	public Object getObject(){return object;}
+	
+	public void getGroupPermutationCounts(List<Integer> list, boolean ignoreOrderedGroups) {
+    	list.add(1); // only one way to permute a single object
+    }
 }

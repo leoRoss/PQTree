@@ -13,7 +13,7 @@ public class OrderedGroup extends Group {
 	protected boolean reversible;
 	
 	//Various Constructors
-	public OrderedGroup (Label label, Task parent, int size, boolean rev) {
+	private OrderedGroup (Label label, Task parent, int size, boolean rev) {
 		super(label, parent, size);
 		orderedSubTasks = new ArrayList<Task>(size);
         reversible = rev;
@@ -153,10 +153,9 @@ public class OrderedGroup extends Group {
 	
 	public boolean isOrdered () {return true;}
 	public boolean isReversible () {return reversible;}
-    protected Collection<Task> getPrintSubTasks (){ return getOrderedSubTasks();}
+    protected Collection<Task> getSubTasksForEfficientTraversal (){ return getOrderedSubTasks();}
     protected String name () {
         if (reversible) return "Reversible";
         return "Sequential";
     }
-	
 }

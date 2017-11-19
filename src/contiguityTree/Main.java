@@ -9,7 +9,7 @@ public class Main {
      */
     public static void main(String[] args) {
         basicTest();
-        //superTest();
+        // superTest();
     }
     
     public static void basicTest () {
@@ -29,22 +29,27 @@ public class Main {
         
         observeDemo(tree,demo1);
         copyPrintAndAssertEqual(tree);
+        printPermutations(tree);
         runTraversalExperiment(tree);
         
         observeDemo(tree,demo2);
         copyPrintAndAssertEqual(tree);
+        printPermutations(tree);
         runTraversalExperiment(tree);
         
         observeDemo(tree,demo3);
         copyPrintAndAssertEqual(tree);
+        printPermutations(tree);
         runTraversalExperiment(tree);
         
         observeDemo(tree,demo4);
         copyPrintAndAssertEqual(tree);
+        printPermutations(tree);
         runTraversalExperiment(tree);
         
         observeDemo(tree,demo5);
         copyPrintAndAssertEqual(tree);
+        printPermutations(tree);
         runTraversalExperiment(tree);
         
         //Incremental Demo Example
@@ -80,6 +85,14 @@ public class Main {
         treeCopy.print();
         if (ct.equals(treeCopy)) {System.out.println("The copy and the original trees are equal");}
         else {throw new Error ("The copy was not equal to the other tree!");}
+        System.out.println();
+    }
+    
+    private static void printPermutations(ContiguityTree ct){
+        System.out.println("Group Permutations:");
+        System.out.println(Arrays.toString(ct.getGroupPermutationCounts(false).toArray()));
+        System.out.println("Group Permutations (ignoring fixed orders):");
+        System.out.println(Arrays.toString(ct.getGroupPermutationCounts(true).toArray()));
         System.out.println();
     }
     
@@ -186,10 +199,11 @@ public class Main {
     	giant.print();
     	
     	System.out.println();
-    	System.out.println("Starting Experiment: Recreating tree using ? random traversals 100 times...");
+    	printPermutations(giant);
+    	System.out.println("Starting Experiment: Recreating tree using ? random traversals 10 times...");
     	
     	long startTime = System.nanoTime();
-    	for (int i=0; i<100; i++){
+    	for (int i=0; i< 10; i++){
     		System.out.println(giant.recreateTreeUsingRandomTraversalsAsDemonstrations());
     	}
     	runTraversalExperiment(giant);

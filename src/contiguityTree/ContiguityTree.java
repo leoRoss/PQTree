@@ -85,9 +85,9 @@ public class ContiguityTree {
         
         if (demo.size() != 1) { 
         	System.out.println("DEMO FAILED TO INCORPORATE"); 
-        	return false; //the demo should now be a single task... the new tree
+        	return false;
         }
-        head = demo.get(0);
+        head = demo.get(0); // the demo should now be a single task... the new tree
         return true;
     }
     
@@ -135,6 +135,13 @@ public class ContiguityTree {
         return new ContiguityTree(head.fullCopy());
     }
     
+    public List<Integer> getGroupPermutationCounts(boolean ignoreOrderingInGroups) {
+    	List<Integer> list = new ArrayList<Integer>();
+    	if (head != null) {
+    		head.getGroupPermutationCounts(list, ignoreOrderingInGroups);
+    	}
+    	return list;
+    }
     
     /*
      * TRAVERSAL METHODS

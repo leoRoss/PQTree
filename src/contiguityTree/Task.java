@@ -8,7 +8,7 @@ public abstract class Task {
 	protected Label label;
 	protected Task parent; //Parent in tree, root will have a null parent
 	protected Collection <Label> preconditions; //TO BE IMPLEMENTED
-	protected int size; //number of subLabels
+	protected int size; //number of subLabels -- Don't trust this!! -____-
 	
 	public Task (Label lab, Task par, int s) {
 		label = lab;
@@ -39,6 +39,8 @@ public abstract class Task {
 	public abstract boolean contentEquals (Task t);
 	
 	public abstract Task fullCopy ();
+	
+	public abstract void getGroupPermutationCounts(List<Integer> list, boolean ignoreOrderingInGroups);
 	
 	//Number of leaf nodes below me    
     public abstract int absoluteSize ();

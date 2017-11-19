@@ -92,6 +92,6 @@ public class UnOrderedGroup extends Group {
 	public boolean isReversible () {return false;}
 	
 	protected String name () {return "Unordered Group";}
-	protected Collection<Task> getPrintSubTasks (){ return subTasks; }
-	    
+	protected Collection<Task> getSubTasksForEfficientTraversal (){ return subTasks; }
 }
+
