@@ -135,10 +135,14 @@ public class ContiguityTree {
         return new ContiguityTree(head.fullCopy());
     }
     
-    public List<Integer> getGroupPermutationCounts(boolean ignoreOrderingInGroups) {
+    public List<Integer> getGroupSizes() {
+    	return getGroupSizes(false);
+    }
+    
+    public List<Integer> getGroupSizes(boolean onlyCountPermutationsForOrderedGroups) {
     	List<Integer> list = new ArrayList<Integer>();
     	if (head != null) {
-    		head.getGroupPermutationCounts(list, ignoreOrderingInGroups);
+    		head.getGroupSizes(list, onlyCountPermutationsForOrderedGroups);
     	}
     	return list;
     }

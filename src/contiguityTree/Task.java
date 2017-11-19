@@ -40,7 +40,7 @@ public abstract class Task {
 	
 	public abstract Task fullCopy ();
 	
-	public abstract void getGroupPermutationCounts(List<Integer> list, boolean ignoreOrderingInGroups);
+	public abstract void getGroupSizes(List<Integer> list, boolean onlyCountPermutationsForOrderedGroups);
 	
 	//Number of leaf nodes below me    
     public abstract int absoluteSize ();

@@ -29,27 +29,27 @@ public class Main {
         
         observeDemo(tree,demo1);
         copyPrintAndAssertEqual(tree);
-        printPermutations(tree);
+        printGroupCounts(tree);
         runTraversalExperiment(tree);
         
         observeDemo(tree,demo2);
         copyPrintAndAssertEqual(tree);
-        printPermutations(tree);
+        printGroupCounts(tree);
         runTraversalExperiment(tree);
         
         observeDemo(tree,demo3);
         copyPrintAndAssertEqual(tree);
-        printPermutations(tree);
+        printGroupCounts(tree);
         runTraversalExperiment(tree);
         
         observeDemo(tree,demo4);
         copyPrintAndAssertEqual(tree);
-        printPermutations(tree);
+        printGroupCounts(tree);
         runTraversalExperiment(tree);
         
         observeDemo(tree,demo5);
         copyPrintAndAssertEqual(tree);
-        printPermutations(tree);
+        printGroupCounts(tree);
         runTraversalExperiment(tree);
         
         //Incremental Demo Example
@@ -88,11 +88,11 @@ public class Main {
         System.out.println();
     }
     
-    private static void printPermutations(ContiguityTree ct){
-        System.out.println("Group Permutations:");
-        System.out.println(Arrays.toString(ct.getGroupPermutationCounts(false).toArray()));
-        System.out.println("Group Permutations (ignoring fixed orders):");
-        System.out.println(Arrays.toString(ct.getGroupPermutationCounts(true).toArray()));
+    private static void printGroupCounts(ContiguityTree ct){
+        System.out.println("Group Counts:");
+        System.out.println(Arrays.toString(ct.getGroupSizes().toArray()));
+        System.out.println("Group Counts (overriding count for ordered groups):");
+        System.out.println(Arrays.toString(ct.getGroupSizes(true).toArray()));
         System.out.println();
     }
     
@@ -199,7 +199,7 @@ public class Main {
     	giant.print();
     	
     	System.out.println();
-    	printPermutations(giant);
+    	printGroupCounts(giant);
     	System.out.println("Starting Experiment: Recreating tree using ? random traversals 10 times...");
     	
     	long startTime = System.nanoTime();

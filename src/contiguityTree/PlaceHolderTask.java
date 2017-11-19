@@ -38,7 +38,7 @@ public class PlaceHolderTask extends Task {
         throw new Error ("PlaceHolderTasks methods should never be called!");
     }
 	
-	public void getGroupPermutationCounts(List<Integer> list, boolean ignoreOrderingInGroups){
+	public void getGroupSizes(List<Integer> list, boolean onlyCountPermutationsForOrderedGroups){
         throw new Error ("PlaceHolderTasks methods should never be called!");
     }
 

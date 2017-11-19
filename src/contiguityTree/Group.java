@@ -95,19 +95,19 @@ public abstract class Group extends Task {
     public abstract boolean isOrdered();
     public abstract boolean isReversible();
     
-    public void getGroupPermutationCounts(List<Integer> list, boolean ignoreOrderingInGroups) {
-    	if (ignoreOrderingInGroups || !isOrdered() ) {
-    		list.add(subTasks.size());
-    	} else { // It is ordered and we care about ordering
+    public void getGroupSizes(List<Integer> list, boolean onlyCountPermutationsForOrderedGroups) {
+    	if (onlyCountPermutationsForOrderedGroups && isOrdered()) {
     		if (isReversible()) {
     			list.add(2); // Two ways to permute
     		} else {
     			list.add(1);
     		}
+    	} else {
+    		list.add(subTasks.size());
     	}
     	// Recurse
     	for (Task task : getSubTasksForEfficientTraversal()) {
-    		task.getGroupPermutationCounts(list, ignoreOrderingInGroups);
+    		task.getGroupSizes(list, onlyCountPermutationsForOrderedGroups);
     	}
     }
 
