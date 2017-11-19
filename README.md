@@ -1,7 +1,7 @@
-#ContiguityTree
+# ContiguityTree
 
 
-##Input
+## Input
 
 A Contiguity Tree (CT) takes as input demonstrations, one at a time.
 
@@ -11,7 +11,7 @@ Limitation: all of the demonstrations must include the same set objects
 
 
 
-##Result
+## Result
 
 A Contiguity Tree keeps track of all the groups of Objects (or groups of groups of Objects) which always appear contiguously in the demos
 
