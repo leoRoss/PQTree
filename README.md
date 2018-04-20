@@ -1,7 +1,9 @@
 # PQ Tree / ContiguityTree
 
-NOTE: I accidentally re-invented the PQ-Tree, so I renamed this repo in case anyone wants a speed implementation. 
+NOTE: I accidentally re-invented the PQ-Tree, so I renamed this repo in case anyone wants a speedy implementation. 
 https://en.wikipedia.org/wiki/PQ_tree 
+
+This is essentially a PQ Tree implementation which uses dynamic programming.
 
 ## Input
 
