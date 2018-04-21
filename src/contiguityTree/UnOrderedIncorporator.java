@@ -25,7 +25,6 @@ public class UnOrderedIncorporator extends Incorporator {
     }
 
     public void incorporate() throws IncorporationError {
-
         /*
          * Instead of finding subNodes in the demo, lets try and find the demo tasks into the node.
          * This lets us leverage the demo.contains method with O(1)

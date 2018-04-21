@@ -21,10 +21,10 @@ import java.util.HashSet;
 public class OrderedIncorporator extends Incorporator{
 
     private ContiguousGroupFinder finder; // find contiguous groups - candidates to become nodes in the new tree
-	private Validator validator; // validate these groups using the index
+    private Validator validator; // validate these groups using the index
     private GroupBuilder builder; // build nodes in the new tree
 
-	OrderedIncorporator (OrderedNode orderedGroupToIncorporateIntoDemo, List<Node> partiallyIncorporatedDemo) throws IncorporationError {
+    OrderedIncorporator (OrderedNode orderedGroupToIncorporateIntoDemo, List<Node> partiallyIncorporatedDemo) throws IncorporationError {
         permutation = partiallyIncorporatedDemo;
         node = orderedGroupToIncorporateIntoDemo;
         int permutationSize = permutation.size();
@@ -54,11 +54,11 @@ public class OrderedIncorporator extends Incorporator{
     }
 
 
-	//************************************************************************************************//
+    //************************************************************************************************//
     //*************************************** FINDER CLASSES *****************************************//
     //************************************************************************************************//
 
-	/**
+    /**
      * These classes are used to find all the groups of nodes which are contiguous
      * in both the OrderedNode's subNodes and in the demo
      * HOW WE COMPUTE CONTIGUOUS GROUPS...
@@ -178,59 +178,59 @@ public class OrderedIncorporator extends Incorporator{
      *
      */
 
-	private class ContiguousGroupFinder {
-	    private PieceIndexTracker[][] books;
-	    private int i,j;
+    private class ContiguousGroupFinder {
+        private PieceIndexTracker[][] books;
+        private int i,j;
 
-	    ContiguousGroupFinder (OrderedNode group, List<Node> demo) {
-	        int demoSize = demo.size();
-	        i=1; j=-1;
-	        books = new PieceIndexTracker [demoSize][demoSize];
-	        int index=0;
+        ContiguousGroupFinder (OrderedNode group, List<Node> demo) {
+            int demoSize = demo.size();
+            i=1; j=-1;
+            books = new PieceIndexTracker [demoSize][demoSize];
+            int index=0;
             for (Node demoNode : demo){
                 books[0][index++] = new PieceIndexTracker(group, demoNode, demoSize);
             }
-	    }
+        }
 
-	    //This function dynamically builds books until it finds a candidate, which it returns
-	    //When it is called again, it continues building from where it left off
+        //This function dynamically builds books until it finds a candidate, which it returns
+        //When it is called again, it continues building from where it left off
         int[] nextGroup () {
-	        int size = books[0].length;
+            int size = books[0].length;
 
-	        //I must apologize for the ugly nested looping. Returning inside the nested loop must not affect the incrementing of i and j
-	        //This allows us to return to where we left of :)
-	        while (i<=size){
-	            if (j+i==size-1) {i++; j=-1;}
-	            while (j<size-i-1){
-	                j++;
-	                books[i][j]=new PieceIndexTracker(books[i-1][j],books[i-1][j+1]);
-	                if (books[i][j].candidateForGrouping()) return new int[]{j,j+i};
-	            }
-	        }
-	        return null;
-	    }
+            //I must apologize for the ugly nested looping. Returning inside the nested loop must not affect the incrementing of i and j
+            //This allows us to return to where we left of :)
+            while (i<=size){
+                if (j+i==size-1) {i++; j=-1;}
+                while (j<size-i-1){
+                    j++;
+                    books[i][j]=new PieceIndexTracker(books[i-1][j],books[i-1][j+1]);
+                    if (books[i][j].candidateForGrouping()) return new int[]{j,j+i};
+                }
+            }
+            return null;
+        }
 
-	    int [] indexOfDemoTasksInGroup () {
-	        int size = books[0].length;
-	        int [] indexOfDemoTasksInGroup = new int [size];
-	        for (int i=0; i<size; i++) {
-	            indexOfDemoTasksInGroup[i] = books[0][i].minIndex;
-	        }
-	        return indexOfDemoTasksInGroup;
-	    }
+        int [] indexOfDemoTasksInGroup () {
+            int size = books[0].length;
+            int [] indexOfDemoTasksInGroup = new int [size];
+            for (int i=0; i<size; i++) {
+                indexOfDemoTasksInGroup[i] = books[0][i].minIndex;
+            }
+            return indexOfDemoTasksInGroup;
+        }
 
 
 
-    	private class PieceIndexTracker {
-	        int minIndex, maxIndex;
-	        HashSet<Node> myPieces;
-	        Node highestIndexOriginalDemoNode; //the original task in demo[j+i], used facilitate merging two PieceIndexTrackers
+        private class PieceIndexTracker {
+            int minIndex, maxIndex;
+            HashSet<Node> myPieces;
+            Node highestIndexOriginalDemoNode; //the original task in demo[j+i], used facilitate merging two PieceIndexTrackers
             int desiredNumberOfPieces;
             int numberOfBrotherhoods;
             int numberOfDemoTasksTracked; //= i+1 in books[i][j] ie: size of demo(j..j+i)
 
             PieceIndexTracker (OrderedNode group, Node node, int demoSize) {
-    			myPieces = new HashSet<> ();
+                myPieces = new HashSet<> ();
                 desiredNumberOfPieces=0;
                 numberOfBrotherhoods=0;
                 numberOfDemoTasksTracked = 1;
@@ -239,95 +239,95 @@ public class OrderedIncorporator extends Incorporator{
                 if (group.contains(node)) {indexInGroup = group.lenientIndexOfSubTask(node); }
                 else {indexInGroup = -1;}
 
-    			if (indexInGroup==-1) { //the node does not exist in this node
-    			    minIndex = -demoSize*100;
-    			    maxIndex = demoSize*100; //this way no node containing this node will ever be a candidate
+                if (indexInGroup==-1) { //the node does not exist in this node
+                    minIndex = -demoSize*100;
+                    maxIndex = demoSize*100; //this way no node containing this node will ever be a candidate
 
-    			    highestIndexOriginalDemoNode = null;
-    			}
-    			else {
-        			minIndex = indexInGroup;
-        			maxIndex = indexInGroup;
+                    highestIndexOriginalDemoNode = null;
+                }
+                else {
+                    minIndex = indexInGroup;
+                    maxIndex = indexInGroup;
 
-        			//A vague copy creates a placeholder node with an equivalent label
+                    //A vague copy creates a placeholder node with an equivalent label
                     //Since we are tracking pieces using a label-based hashset, we need persistent labels
-        			//the highestIndexOriginalDemoNode may become relabeled when it becomes part of a node (a new InnerNode should never contain any Tasks with PieceLabels)
+                    //the highestIndexOriginalDemoNode may become relabeled when it becomes part of a node (a new InnerNode should never contain any Tasks with PieceLabels)
                     highestIndexOriginalDemoNode = node.vagueCopy();
-    			}
+                }
 
-    			if (highestIndexOriginalDemoNode !=null && highestIndexOriginalDemoNode.isPiece()) {
-    				myPieces.add(highestIndexOriginalDemoNode);
-    				desiredNumberOfPieces+= highestIndexOriginalDemoNode.getBrotherhoodSize();
-    				numberOfBrotherhoods++;
-    			}
-    		}
+                if (highestIndexOriginalDemoNode !=null && highestIndexOriginalDemoNode.isPiece()) {
+                    myPieces.add(highestIndexOriginalDemoNode);
+                    desiredNumberOfPieces+= highestIndexOriginalDemoNode.getBrotherhoodSize();
+                    numberOfBrotherhoods++;
+                }
+            }
 
-    		PieceIndexTracker (PieceIndexTracker tracker1, PieceIndexTracker tracker2) {
+            PieceIndexTracker (PieceIndexTracker tracker1, PieceIndexTracker tracker2) {
                 minIndex = Math.min(tracker1.minIndex, tracker2.minIndex);
-    			maxIndex = Math.max(tracker1.maxIndex, tracker2.maxIndex);
-    			numberOfDemoTasksTracked = tracker1.numberOfDemoTasksTracked+1;
-    			numberOfBrotherhoods = tracker1.numberOfBrotherhoods;
-    			copyPieceTrackingFrom(tracker1);
-    			addHighestIndexOriginalDemoTaskFrom(tracker2);
-    		}
+                maxIndex = Math.max(tracker1.maxIndex, tracker2.maxIndex);
+                numberOfDemoTasksTracked = tracker1.numberOfDemoTasksTracked+1;
+                numberOfBrotherhoods = tracker1.numberOfBrotherhoods;
+                copyPieceTrackingFrom(tracker1);
+                addHighestIndexOriginalDemoTaskFrom(tracker2);
+            }
 
-    		//NOTE: We are stealing (not copying) and further editing the HashSet from the books[][] directly below us.
+            //NOTE: We are stealing (not copying) and further editing the HashSet from the books[][] directly below us.
             //This is OK as we no longer need the layer below us to be valid - as long as we dynamically computer j=0->n. 
-    		private void copyPieceTrackingFrom (PieceIndexTracker tracker1) {
-    			myPieces = tracker1.myPieces;
-    			desiredNumberOfPieces = tracker1.desiredNumberOfPieces;
-    		}
+            private void copyPieceTrackingFrom (PieceIndexTracker tracker1) {
+                myPieces = tracker1.myPieces;
+                desiredNumberOfPieces = tracker1.desiredNumberOfPieces;
+            }
 
-    		private void addHighestIndexOriginalDemoTaskFrom (PieceIndexTracker tracker2) {
-    			highestIndexOriginalDemoNode = tracker2.highestIndexOriginalDemoNode;
+            private void addHighestIndexOriginalDemoTaskFrom (PieceIndexTracker tracker2) {
+                highestIndexOriginalDemoNode = tracker2.highestIndexOriginalDemoNode;
 
-    			if (highestIndexOriginalDemoNode != null && highestIndexOriginalDemoNode.isPiece()) {
-    				//If we are adding a new set of pieces to track, we must update our piece count
-    				if (!myPieces.contains(highestIndexOriginalDemoNode)) {
-    				    myPieces.add(highestIndexOriginalDemoNode);
-    					desiredNumberOfPieces+= highestIndexOriginalDemoNode.getBrotherhoodSize();
-    					numberOfBrotherhoods++;
-    				}
-    			}
-    		}
+                if (highestIndexOriginalDemoNode != null && highestIndexOriginalDemoNode.isPiece()) {
+                    //If we are adding a new set of pieces to track, we must update our piece count
+                    if (!myPieces.contains(highestIndexOriginalDemoNode)) {
+                        myPieces.add(highestIndexOriginalDemoNode);
+                        desiredNumberOfPieces+= highestIndexOriginalDemoNode.getBrotherhoodSize();
+                        numberOfBrotherhoods++;
+                    }
+                }
+            }
 
-    		boolean candidateForGrouping () {
-    			int rangeOfIndices = maxIndex - minIndex;
-    			int supplementalPieces = desiredNumberOfPieces - numberOfBrotherhoods; //AAABC has 2 supplemental As
-    			return rangeOfIndices + 1 + supplementalPieces == numberOfDemoTasksTracked;
-    		}
-    	}
-	}
+            boolean candidateForGrouping () {
+                int rangeOfIndices = maxIndex - minIndex;
+                int supplementalPieces = desiredNumberOfPieces - numberOfBrotherhoods; //AAABC has 2 supplemental As
+                return rangeOfIndices + 1 + supplementalPieces == numberOfDemoTasksTracked;
+            }
+        }
+    }
 
 
-	//************************************************************************************************//
+    //************************************************************************************************//
     //************************************** VALIDATION CLASS ****************************************//
     //************************************************************************************************//
 
-	/**
+    /**
      * This class is used to ensure that the contiguous groups merit to be built into the Contiguity Tree
      */
-	private class Validator {
-	    private Node[] upToDateDemoNodes;
-	    private int[] directionOfDemoTasks;
-	    private int [] demoIndexedInGroup;
+    private class Validator {
+        private Node[] upToDateDemoNodes;
+        private int[] directionOfDemoTasks;
+        private int [] demoIndexedInGroup;
 
-	    Validator (List<Node> demo, int [] indexedInGroup) {
-	        int demoSize = demo.size();
-	        upToDateDemoNodes = new Node[demoSize];
-	        demoIndexedInGroup = new int [demoSize];
-	        directionOfDemoTasks = new int [demoSize];
-	        int index=0;
+        Validator (List<Node> demo, int [] indexedInGroup) {
+            int demoSize = demo.size();
+            upToDateDemoNodes = new Node[demoSize];
+            demoIndexedInGroup = new int [demoSize];
+            directionOfDemoTasks = new int [demoSize];
+            int index=0;
             for (Node demoNode : demo){
                 upToDateDemoNodes[index] = demoNode;
                 demoIndexedInGroup[index] = indexedInGroup[index];
                 directionOfDemoTasks[index] = 0; //unnecessary initialization for clarity
                 index++;
             }
-	    }
+        }
 
         /**
-	     * Not all contiguous groups merit to become a Node in the final Contiguity Tree
+         * Not all contiguous groups merit to become a Node in the final Contiguity Tree
          * For example, assume node = ABCD && demo = ABCD
          * Initially, upToDateDemoNodes = 0 1 2 3.
          *
@@ -353,7 +353,7 @@ public class OrderedIncorporator extends Incorporator{
          * The final Contiguity Tree is an Ordered InnerNode <ABCD>.
          */
         VerifiedGroupOfTasks validate (int start, int end) {
-	        LinkedList<Node> tasksInDemoOrder = new LinkedList<Node>();
+            LinkedList<Node> tasksInDemoOrder = new LinkedList<Node>();
             LinkedList<Integer> groupIndexOfTasksInDemoOrder = new LinkedList<Integer>();
             LinkedList<Integer> directionOfTasksInDemoOrder = new LinkedList<Integer>();
             int numberOfUnResolvedPieces = 0;
@@ -379,7 +379,7 @@ public class OrderedIncorporator extends Incorporator{
             //record each subtask, their direction, and their index with respect to the node
             Node currentNode = null;
             for (int k=start; k <= end; k++){
-            	if (upToDateDemoNodes[k].isPiece()) numberOfUnResolvedPieces++;
+                if (upToDateDemoNodes[k].isPiece()) numberOfUnResolvedPieces++;
                 if ( ! upToDateDemoNodes[k].strictEquals(currentNode)) {
                     currentNode = upToDateDemoNodes[k];
                     tasksInDemoOrder.add(upToDateDemoNodes[k]);
@@ -392,7 +392,7 @@ public class OrderedIncorporator extends Incorporator{
             int direction = determineDirection(groupIndexOfTasksInDemoOrder);
 
             return new VerifiedGroupOfTasks(tasksInDemoOrder, direction, directionOfTasksInDemoOrder, numberOfUnResolvedPieces);
-	    }
+        }
 
         /**
          * @return  1 if the nodes are in the same order
@@ -417,20 +417,20 @@ public class OrderedIncorporator extends Incorporator{
                 upToDateDemoNodes[i] = node;
                 directionOfDemoTasks[i]=direction;
             }
-	    }
+        }
 
 
 
 
-	    //THESE METHODS DEAL WITH REPLACING THE DEMO WITH THE NEW TASK OR PIECES ONCE AN ENTIRE INCORPORATION IS FINISHED
+        //THESE METHODS DEAL WITH REPLACING THE DEMO WITH THE NEW TASK OR PIECES ONCE AN ENTIRE INCORPORATION IS FINISHED
 
-	    //The Validator is aware of what Tasks are a piece of the OrderedNode we are incorporating.
-	    //If all pieces were combined into a single Node, relabel the Node with the same label as the OG
-	    //If there are multiple pieces left, relabel them all as pieces of OG
-	    //Of course, remove the old Tasks from the demo, and insert the new ones in their place
+        //The Validator is aware of what Tasks are a piece of the OrderedNode we are incorporating.
+        //If all pieces were combined into a single Node, relabel the Node with the same label as the OG
+        //If there are multiple pieces left, relabel them all as pieces of OG
+        //Of course, remove the old Tasks from the demo, and insert the new ones in their place
         void updateDemo (List<Node> demo, int labelId) throws IncorporationError {
-	        List<Node> tasksFromOG = new LinkedList<Node>();
-	        Integer startOfPiece = null;
+            List<Node> tasksFromOG = new LinkedList<Node>();
+            Integer startOfPiece = null;
             Integer endOfPiece = null;
 
             int length = demoIndexedInGroup.length;
@@ -476,39 +476,39 @@ public class OrderedIncorporator extends Incorporator{
             else {throw new IncorporationError ("No parts of the Ordered InnerNode were found while incorporating!");}
 
 
-	    }
+        }
 
-	    private void replaceTasksInDemo (List<Node> demo, Integer start, Integer end) {
-	        if ( start==null || end ==null) return;
+        private void replaceTasksInDemo (List<Node> demo, Integer start, Integer end) {
+            if ( start==null || end ==null) return;
 
-	        int demoSize = demo.size();
-	        Node replacementNode = upToDateDemoNodes[start];
+            int demoSize = demo.size();
+            Node replacementNode = upToDateDemoNodes[start];
 
-	        List<Node> startOfDemo = demo.subList(0, start);
-	        List<Node> endOfDemo = demo.subList(end+1, demoSize);
-	        List<Node> newDemo = new ArrayList<Node>(demoSize-end+start-1);
-	        newDemo.addAll(startOfDemo);
-	        newDemo.add(replacementNode);
-	        newDemo.addAll(endOfDemo);
+            List<Node> startOfDemo = demo.subList(0, start);
+            List<Node> endOfDemo = demo.subList(end+1, demoSize);
+            List<Node> newDemo = new ArrayList<Node>(demoSize-end+start-1);
+            newDemo.addAll(startOfDemo);
+            newDemo.add(replacementNode);
+            newDemo.addAll(endOfDemo);
 
-	        demo.clear();
-	        demo.addAll(newDemo);
+            demo.clear();
+            demo.addAll(newDemo);
 
-	    }
+        }
 
-	}
+    }
 
 
-	//************************************************************************************************//
-	//************************************** BUILDER CLASSES *****************************************//
-	//************************************************************************************************//
+    //************************************************************************************************//
+    //************************************** BUILDER CLASSES *****************************************//
+    //************************************************************************************************//
 
-	/*
-	 * These classes are used to build the new Contiguity Tree
-	 */
+    /*
+     * These classes are used to build the new Contiguity Tree
+     */
 
-	/*
-	 * --DEFINITIONS--
+    /*
+     * --DEFINITIONS--
      * Absorb: When a InnerNode, parent, deletes one of its subNodes, child, and adds all of child's subNodes
      *    A                                    A
      *   / \         --------------->        / | \
@@ -517,8 +517,8 @@ public class OrderedIncorporator extends Incorporator{
      *    D   E
      */
 
-	/*
-	 * General Rule:
+    /*
+     * General Rule:
      *  - If we are making an OG containing another recently made subTask in the same direction, absorb it
      *
      * EX:
@@ -562,52 +562,52 @@ public class OrderedIncorporator extends Incorporator{
      *       - note that the direction was opposite (-1)
      * - Otherwise make an unordered node and note that the direction was scrambled (0)
      */
-	private class GroupBuilderFromNonReversible extends GroupBuilder {
-	    GroupBuilderFromNonReversible (int demoLength){
-		    super(demoLength);
-		}
+    private class GroupBuilderFromNonReversible extends GroupBuilder {
+        GroupBuilderFromNonReversible (int demoLength){
+            super(demoLength);
+        }
 
-		public Node buildTask (VerifiedGroupOfTasks verifiedGroup) throws IncorporationError {
-		    Node node;
-		    List<Node> nodes = verifiedGroup.nodes;
-		    int direction = verifiedGroup.direction;
+        public Node buildTask (VerifiedGroupOfTasks verifiedGroup) throws IncorporationError {
+            Node node;
+            List<Node> nodes = verifiedGroup.nodes;
+            int direction = verifiedGroup.direction;
             List<Integer> subTaskDirections = verifiedGroup.subTaskDirections;
 
-		    //if there are any unresolved pieces we have to make an UnOrderedNode no matter what
-		    if (verifiedGroup.numberOfUnResolvedPieces>0) {
-		        node = new UnOrderedNode(new Label(), verifiedGroup.nodes);
-		    }
+            //if there are any unresolved pieces we have to make an UnOrderedNode no matter what
+            if (verifiedGroup.numberOfUnResolvedPieces>0) {
+                node = new UnOrderedNode(new Label(), verifiedGroup.nodes);
+            }
 
-		    else {
-    		    if (direction==1){ //increasing node indices. ex: 3, 4, 7, 11
-    		        node = new OrderedNode(new Label(), nodes, false, subTaskDirections, direction); //false bc node order is not reversible
-    		    }
-    		    else if (direction==-1){  //decreasing node indices. ex: 11, 7, 4, 3
-    		        node = new OrderedNode(new Label(), nodes, true, subTaskDirections, direction); //true bc node order is reversible
-    		    }
-    		    else if (direction==0){  //fluctuating node indices. ex: 11, 4, 7, 3
-    		        node = new UnOrderedNode(new Label(), nodes);
-    		    }
-    		    else {throw new IncorporationError("Unsupported direction passed into buildNode()");}
-		    }
+            else {
+                if (direction==1){ //increasing node indices. ex: 3, 4, 7, 11
+                    node = new OrderedNode(new Label(), nodes, false, subTaskDirections, direction); //false bc node order is not reversible
+                }
+                else if (direction==-1){  //decreasing node indices. ex: 11, 7, 4, 3
+                    node = new OrderedNode(new Label(), nodes, true, subTaskDirections, direction); //true bc node order is reversible
+                }
+                else if (direction==0){  //fluctuating node indices. ex: 11, 4, 7, 3
+                    node = new UnOrderedNode(new Label(), nodes);
+                }
+                else {throw new IncorporationError("Unsupported direction passed into buildNode()");}
+            }
 
-		    return node;
-		}
+            return node;
+        }
 
-	}
+    }
 
-	/*
-	 * This class is used when incorporating a reversible oGroup
+    /*
+     * This class is used when incorporating a reversible oGroup
      *
      * We follow the same rules as a GroupBuilderFromNonReversible except we ALWAYS make reversible OGs INSTEAD of non-reversible OGs
      * Why? Obviously, if the sequence of Tasks already existed in a reversible, it must have previously been seen in both direction
      */
-	private class GroupBuilderFromReversible extends GroupBuilder {
-	    GroupBuilderFromReversible (int demoLength){
+    private class GroupBuilderFromReversible extends GroupBuilder {
+        GroupBuilderFromReversible (int demoLength){
             super(demoLength);
         }
 
-	    public Node buildTask (VerifiedGroupOfTasks verifiedGroup) throws IncorporationError {
+        public Node buildTask (VerifiedGroupOfTasks verifiedGroup) throws IncorporationError {
             Node node;
             List<Node> nodes = verifiedGroup.nodes;
             int direction = verifiedGroup.direction;
@@ -632,11 +632,11 @@ public class OrderedIncorporator extends Incorporator{
 
             return node;
         }
-	}
+    }
 
 
 
-	//************************************************************************************************//
+    //************************************************************************************************//
     //**************************************** HELPER CLASS ******************************************//
     //************************************************************************************************//
 
@@ -645,17 +645,17 @@ public class OrderedIncorporator extends Incorporator{
      * This class is simply used to pass info between the verifier and the builder
      */
 
-	private class VerifiedGroupOfTasks {
-	    private List<Node> nodes;
-	    private List<Integer> subTaskDirections;
-	    private int direction;
-	    private int numberOfUnResolvedPieces;
+    private class VerifiedGroupOfTasks {
+        private List<Node> nodes;
+        private List<Integer> subTaskDirections;
+        private int direction;
+        private int numberOfUnResolvedPieces;
 
-	    VerifiedGroupOfTasks (List<Node> tasksToBeGrouped, int dir, List<Integer> subTaskDirs, int numOfUnResolvedPieces) {
-	        nodes = tasksToBeGrouped;
-	        direction = dir;
-	        subTaskDirections = subTaskDirs;
-	        numberOfUnResolvedPieces = numOfUnResolvedPieces;
-	    }
-	}
+        VerifiedGroupOfTasks (List<Node> tasksToBeGrouped, int dir, List<Integer> subTaskDirs, int numOfUnResolvedPieces) {
+            nodes = tasksToBeGrouped;
+            direction = dir;
+            subTaskDirections = subTaskDirs;
+            numberOfUnResolvedPieces = numOfUnResolvedPieces;
+        }
+    }
 }
