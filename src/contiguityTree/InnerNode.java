@@ -20,6 +20,7 @@ public abstract class InnerNode extends Node {
 
     /**
      * Incorporates this node into permutation
+     *
      * @param permutation - the previous permutation (which is modified in place to become a new tree)
      */
     public void incorporate(List<Node> permutation) throws IncorporationError {
@@ -33,6 +34,7 @@ public abstract class InnerNode extends Node {
     }
 
     public abstract void incorporateChildren(List<Node> permutation) throws IncorporationError;
+
     public abstract Incorporator createNewIncorporator(List<Node> permutation) throws IncorporationError;
 
     void addTaskSafe(Node node) {
@@ -41,10 +43,12 @@ public abstract class InnerNode extends Node {
         }
         addTask(node);
     }
+
     protected abstract void addTask(Node node);
-    
-    public abstract boolean contentEquals (Node t); // Checks if the Node encode same the rules about the same set of elements
-    public abstract Node fullCopy ();
+
+    public abstract boolean contentEquals(Node t); // Checks if the Node encode same the rules about the same set of elements
+
+    public abstract Node fullCopy();
 
     /**
      * @return true even if Node is a Piece
@@ -74,22 +78,23 @@ public abstract class InnerNode extends Node {
     protected abstract boolean sameType(Node node);
 
     public abstract boolean isOrdered();
+
     public abstract boolean isReversible();
-    
+
     public void getGroupSizes(List<Integer> list, boolean onlyCountPermutationsForOrderedGroups) {
-    	if (onlyCountPermutationsForOrderedGroups && isOrdered()) {
-    		if (isReversible()) {
-    			list.add(2); // Two ways to permute
-    		} else {
-    			list.add(1);
-    		}
-    	} else {
-    		list.add(subNodes.size());
-    	}
-    	// Recurse
-    	for (Node node : getSubTasksForEfficientTraversal()) {
-    		node.getGroupSizes(list, onlyCountPermutationsForOrderedGroups);
-    	}
+        if (onlyCountPermutationsForOrderedGroups && isOrdered()) {
+            if (isReversible()) {
+                list.add(2); // Two ways to permute
+            } else {
+                list.add(1);
+            }
+        } else {
+            list.add(subNodes.size());
+        }
+        // Recurse
+        for (Node node : getSubTasksForEfficientTraversal()) {
+            node.getGroupSizes(list, onlyCountPermutationsForOrderedGroups);
+        }
     }
 
     public void printMe(int depth) {
@@ -101,7 +106,7 @@ public abstract class InnerNode extends Node {
         printSpace(depth);
         System.out.println("}");
     }
-    
+
     protected abstract String name();
 
     /**

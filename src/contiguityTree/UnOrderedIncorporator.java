@@ -12,7 +12,7 @@ import java.util.List;
  *      Why? Since A and B are in an UnOrderedNode with other tasks, we know that in some past demo, the two tasks were separated by C or D.
  *
  * So, all we need to to Incorporate an UnOrderedNode into a demo is...
- *      1. find all the children and their pieces. 
+ *      1. find all the children and their pieces.
  *      2. if they are all contiguous, make them into one UnOrderedNode with the same label as the node we are incorporating
  *      3. otherwise, relabel them all as pieces of this unordered node
  *
@@ -24,18 +24,18 @@ public class UnOrderedIncorporator extends Incorporator {
         node = unOrderedGroupToIncorporateIntoDemo;
     }
 
-    public void incorporate() throws IncorporationError{
+    public void incorporate() throws IncorporationError {
 
-        /* 
-        * Instead of finding subNodes in the demo, lets try and find the demo tasks into the node.
-        * This lets us leverage the demo.contains method with O(1)
-        * O(demo.length) or O(3*demo.length).... who cares lets just make this code readable!
-        */
-        if (permutation.size()< node.getSize()) throw new IncorporationError("The demo can not have less tasks than the node does");
-        
+        /*
+         * Instead of finding subNodes in the demo, lets try and find the demo tasks into the node.
+         * This lets us leverage the demo.contains method with O(1)
+         * O(demo.length) or O(3*demo.length).... who cares lets just make this code readable!
+         */
+        if (permutation.size() < node.getSize())
+            throw new IncorporationError("The demo can not have less tasks than the node does");
+
         if (allGroupSubTasksAreContiguous()) replaceSingleChunkOfGroupSubTasks();
         else relabelAllGroupSubTasksAsPieces();
-
     }
 
     private boolean allGroupSubTasksAreContiguous() {
@@ -90,11 +90,11 @@ public class UnOrderedIncorporator extends Incorporator {
     }
 
     private void relabelAllGroupSubTasksAsPieces() {
-    	List<Node> allMyPieces = findAllMyPieces();
+        List<Node> allMyPieces = findAllMyPieces();
         int brotherhoodSize = allMyPieces.size();
         int index = 0;
         for (Node node : allMyPieces) {
-        	node.setLabel(new PieceLabel(this.node.getLabel().getId(), brotherhoodSize, index++));
+            node.setLabel(new PieceLabel(this.node.getLabel().getId(), brotherhoodSize, index++));
         }
     }
 
