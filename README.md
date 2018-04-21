@@ -26,6 +26,13 @@ NOTE: This implementation distinguishes 2 types of Ordered nodes:
 - Sequential: The elements always appear in the same order
 - Reversible: The elements always appear in the same (or the exact opposite) order
 
+## Implementation
+The new permutation is transformed into the new PQ Tree.
+
+This is accomplished using a "smart label" system.
+Each Node is responsible for finding its subNodes in the permutation. If all its subNodes are contiguous in the permutation, it can create a new Node with its same label. If not, it will identify any contiguous subsets of its subNodes and group those elements together if appropriate. It will then apply "smart labels" to all of these new groups and to all the lone subNodes that were not re-grouped. The parent Node must then deal with all these pieces and their labels.
+
+The complex logic is contained within the Incorporators: UnOrderedIncorporator and OrderedIncorporator.
 
 ## Example
 
