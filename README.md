@@ -12,6 +12,9 @@ If the new permutation is already within the tree's family, no modification are 
 At any given time, the PQ Tree will represent the strictest family of permutations to which all previously seen permutations belong.
 In other words, the PQ Tree will encode all grouping constraints that have yet to be violated by an example permutations.
 
+If the PQ Tree has only seen a single permutation, family of permutations will have a size of 1.
+As more example permutations are seen, grouping constraints will be eliminated and the family of permutations will grow.
+
 ## Input
 Permutations of the same set of unique objects.
 NOTE: "same" and "unique" are defined by .equals() method
