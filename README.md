@@ -38,7 +38,7 @@ NOTE: This implementation distinguishes 2 types of Ordered nodes:
     Permutation 1 = A B C D E
     Permutation 2 = E B A C D
 
-    The CT knows that so far...
+    The Tree will indentify that...
         A and B are always contiguous, but can be in any order: {AB}
         C and D always appear in the same order: [CD]
         Moreover, {AB} and [CD] always appear in the same order: [ {AB}[CD] ]
