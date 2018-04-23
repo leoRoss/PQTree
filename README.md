@@ -2,11 +2,12 @@
 https://en.wikipedia.org/wiki/PQ_tree
 
 A PQ Tree represents a family of permutations on a set of elements.
-This PQ Tree implementation incrementally learns/computes/builds a PQ Tree from a series of example permutations.
+This implementation incrementally learns/builds a PQ Tree from a series of example permutations.
 
-As new permutations are presented to the PQ Tree, it will modify itself (if necessary) to ensure:
-1. the new permutation is within the tree's family of permutations
-2. the tree's family of permutations stays as small/strict as possible
+As new permutations are presented to the tree, it will modify itself to ensure:
+1. The new permutation is within the tree's family of permutations
+2. The tree's family of permutations stays as small/strict as possible
+If the new permutation is already within the tree's family, no modification are necessary.
 
 At any given time, the PQ Tree will represent the strictest family of permutations to which all previously seen permutations belong.
 In other words, the PQ Tree will encode all grouping constraints that have yet to be violated by an example permutations.
