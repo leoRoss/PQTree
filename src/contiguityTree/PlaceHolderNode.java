@@ -30,7 +30,7 @@ public class PlaceHolderNode extends Node {
         throw new Error("PlaceHolderTasks methods should never be called!");
     }
 
-    public void getGroupSizes(List<Integer> list, boolean onlyCountPermutationsForOrderedGroups) {
+    public void getPermutationCounts(List<Integer> list) {
         throw new Error("PlaceHolderTasks methods should never be called!");
     }
 }

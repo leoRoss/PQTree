@@ -1,12 +1,17 @@
 package contiguityTree;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 public class PQTree {
     private Node head;
 
     public PQTree() {
+    }
+
+    private PQTree(Node node) {
+        head = node;
     }
 
     /**
@@ -53,6 +58,23 @@ public class PQTree {
             wrappedDemo.add(new LeafNode(permutation[i])); // null parents for now
         }
         return incorporate(wrappedDemo);
+    }
+
+    /**
+     * Copies the entire tree, but does not copy the underlying objects (the elements in the permutation)
+     */
+    public PQTree copy() {
+        return new PQTree(head.fullCopy());
+    }
+
+    /**
+     * To get the full number of possible permutations, multiply all the integers in the list
+     * We return a list to avoid overflows. We suggest using log() based comparision of permutationCounts
+     */
+    public List<Integer> getPermutationCounts() {
+        LinkedList<Integer> counts = new LinkedList<>();
+        head.getPermutationCounts(counts);
+        return counts;
     }
 
     public boolean equals(PQTree tree) {

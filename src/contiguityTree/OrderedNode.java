@@ -133,10 +133,6 @@ public class OrderedNode extends InnerNode {
         return false;
     }
 
-    public boolean isOrdered() {
-        return true;
-    }
-
     public boolean isReversible() {
         return reversible;
     }

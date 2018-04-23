@@ -44,7 +44,7 @@ public class LeafNode extends Node {
         System.out.println();
     }
 
-    public void getGroupSizes(List<Integer> list, boolean onlyCountPermutationsForOrderedGroups) {
+    public void getPermutationCounts(List<Integer> list) {
         list.add(1);
     }
 }

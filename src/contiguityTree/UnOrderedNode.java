@@ -89,10 +89,6 @@ public class UnOrderedNode extends InnerNode {
         return node instanceof UnOrderedNode;
     }
 
-    public boolean isOrdered() {
-        return false;
-    }
-
     public boolean isReversible() {
         return false;
     }

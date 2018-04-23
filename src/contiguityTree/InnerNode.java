@@ -77,23 +77,17 @@ public abstract class InnerNode extends Node {
      */
     protected abstract boolean sameType(Node node);
 
-    public abstract boolean isOrdered();
-
     public abstract boolean isReversible();
 
-    public void getGroupSizes(List<Integer> list, boolean onlyCountPermutationsForOrderedGroups) {
-        if (onlyCountPermutationsForOrderedGroups && isOrdered()) {
-            if (isReversible()) {
-                list.add(2); // Two ways to permute
-            } else {
-                list.add(1);
-            }
+    public void getPermutationCounts(List<Integer> list) {
+        if (isReversible()) {
+            list.add(2); // Two ways to permute
         } else {
-            list.add(subNodes.size());
+            list.add(1);
         }
         // Recurse
         for (Node node : getSubTasksForEfficientTraversal()) {
-            node.getGroupSizes(list, onlyCountPermutationsForOrderedGroups);
+            node.getPermutationCounts(list);
         }
     }
 
