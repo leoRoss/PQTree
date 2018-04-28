@@ -37,6 +37,8 @@ NOTE: This implementation distinguishes 2 types of Ordered nodes:
 - Sequential: The elements always appear in the same order
 - Reversible: The elements always appear in the same (or the exact opposite) order
 
+This peculiar type of PQ Tree is called an ORA Tree as it has Ordered, Reversible, and Arbitrarily-ordered nodes.
+
 ## Simple Example
 
     Permutation 1 = A B C D E
